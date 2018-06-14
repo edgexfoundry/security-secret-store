@@ -82,7 +82,11 @@ EOF
 function initVaultServer() {
          # --------------------------------------------
          # Vault FQDN, files (.pem .req .priv.key)
-         FQDN=$1.${DOMAIN}
+         if [[ ${DOMAIN} == "local" ]]; then
+                FQDN=$1
+         else
+                FQDN=$1.${DOMAIN}
+         fi
          # Vault TLS certificate subject
          # TLS_C
          # TLS_ST
