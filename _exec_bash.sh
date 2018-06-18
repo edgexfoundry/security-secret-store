@@ -1,15 +1,12 @@
 #!/bin/bash
 #  ----------------------------------------------------------------------------------
-#  @edgex/developer-scripts
-#  _exec_bash.sh	version 1.0   created May 24, 2018
+#  _exec_bash.sh	version 1.0 created June 14, 2018
 #
-#  Alain Pulluelo, VP Security & Mobile Innovation (alain.pulluelo@forgerock.com)
-#
-#  ForgeRock Office of the CTO
-#
-#  201 Mission St, Suite 2900
-#  San Francisco, CA 94105, USA
-#  +1(415)-559-1100
+#  @author:  Alain Pulluelo, ForgeRock
+#  @email:   alain.pulluelo@forgerock.com
+#  @address: 201 Mission St, Suite 2900
+#            San Francisco, CA 94105, USA
+#  @phone:   +1(415)-559-1100
 #
 #  Copyright (c) 2018, ForgeRock
 #
@@ -39,7 +36,6 @@ fi
 _container=$1
 set -v
 docker exec -it -e PS1='\u@\h:\w \$ ' -e VAULT_CAPATH='/vault/pki/EdgeXFoundryTrustCA/EdgeXFoundryTrustCA.pem' ${_container} sh
-#docker exec -it -e PS1='\u@\h:\w \$ ' ${_container} sh
 set +v
 
 exit
