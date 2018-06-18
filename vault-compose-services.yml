@@ -1,0 +1,43 @@
+volumes:
+  db-data:
+  log-data:
+  consul-config:
+  consul-data:
+  vault-config:
+  vault-pki:
+
+  vault:
+    image: "edgexfoundry/docker-edgex-vault:latest"
+    container_name: edgex-vault
+    hostname: edgex-vault
+    networks:
+      - edgex-network
+    ports:
+      - "8200:8200"
+    cap_add:
+      - "IPC_LOCK"
+    command: "server"
+    environment:
+      - 'VAULT_ADDR=https://edgex-vault:8200'
+      - 'VAULT_CONFIG_DIR=/vault/config'
+      - 'VAULT_UI=true'
+    volumes:
+      - vault-config:/vault/config
+      - vault-pki:/vault/pki
+    depends_on:
+      - volume
+      - config-seed
+
+  vault-init-unseal:
+    image: "edgexfoundry/docker-edgex-vault-init-unseal:latest"
+    container_name: edgex-vault-init-unseal
+    hostname: edgex-vault-init-unseal
+    networks:
+      - edgex-network
+    volumes:
+      - vault-config:/vault/config
+      - vault-pki:/vault/pki
+    depends_on:
+      - volume
+      - config-seed
+      - vault
