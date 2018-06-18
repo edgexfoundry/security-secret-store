@@ -1,0 +1,31 @@
+FROM alpine:latest
+
+USER root
+
+# Vault init and unseal scripts 
+WORKDIR /vault
+
+# Copy main launcher [CMD]
+COPY vault-ready.sh .
+# Copy init-unseal process
+COPY vault-init-unseal.sh .
+# Copy PKI/TLS script/config for Kong 
+COPY pki-setup.sh .
+COPY pki-setup-config-kong.env .
+# Copy PKI/TLS setup and Vault import for Kong 
+COPY vault-kong.sh .
+
+# Create a vault user and group so the IDs get set the same way
+# Set the files ownership and rights 
+# Install pre-requisites for pki setup: bash/curl/jq/dig/openssl 
+RUN addgroup vault && \
+    adduser -S -G vault vault && \
+    chmod 700 vault-*.sh pki-setup* && \
+    chown vault:vault vault-*.sh pki-setup* && \
+    apk --no-cache update && \
+    apk --no-cache add bash curl jq bind-tools openssl && \
+    rm -f /var/cache/apk/*
+
+# Set the operation command
+ENTRYPOINT ["/bin/bash", "-c"]
+CMD ["/vault/vault-ready.sh"]
