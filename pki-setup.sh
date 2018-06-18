@@ -23,6 +23,9 @@
 #  limitations under the License.
 #  ----------------------------------------------------------------------------------
 
+#
+# ----------------- Common Functions ------------------------
+#
 function usage() {
         echo "Usage  : pki-setup.sh </path/to/config-script>"
         echo "Example: pki-setup.sh pki-setup-config.env"
@@ -38,7 +41,7 @@ function initEnv() {
             echo "ERROR: openssl binary not found or not in the path"
             exit
          fi
-         echo ">>openssl binary found: ${OPENSSL_BIN}"
+         echo ">> openssl binary found: ${OPENSSL_BIN}"
          echo ">>" $(openssl version)
          echo ""
          # --------------------------------------------
@@ -168,6 +171,7 @@ function storeToPKCS12() {
 function houseKeeping() {
         chmod 644 ${SETUP_PKI}/${CA_NAME}/*
 }
+# ----------------- Common Functions ------------------------
 
 #===================================== MAIN ====================================
 

@@ -1,12 +1,15 @@
 #!/bin/bash
 #  ----------------------------------------------------------------------------------
-#  _exec_bash.sh version 1.0 created February 16, 2018
+#  @edgex/developer-scripts
+#  _exec_bash.sh	version 1.0   created May 24, 2018
 #
-#  @author:  Alain Pulluelo, ForgeRock
-#  @email:   alain.pulluelo@forgerock.com
-#  @address: 201 Mission St, Suite 2900
-#            San Francisco, CA 94105, USA
-#  @phone:   +1(415)-559-1100
+#  Alain Pulluelo, VP Security & Mobile Innovation (alain.pulluelo@forgerock.com)
+#
+#  ForgeRock Office of the CTO
+#
+#  201 Mission St, Suite 2900
+#  San Francisco, CA 94105, USA
+#  +1(415)-559-1100
 #
 #  Copyright (c) 2018, ForgeRock
 #
@@ -33,8 +36,10 @@ fi
 # which was signed by a Root CA (self signed included), use VAULT_CAPATH to refer the Root CA 
 # certificate (in PEM format).
 #
+_container=$1
 set -v
-docker exec -it -e PS1='\u@\h:\w \$ ' -e VAULT_CAPATH='/vault/pki/EdgeXTrustCA.pem' $1 sh
+docker exec -it -e PS1='\u@\h:\w \$ ' -e VAULT_CAPATH='/vault/pki/EdgeXFoundryTrustCA/EdgeXFoundryTrustCA.pem' ${_container} sh
+#docker exec -it -e PS1='\u@\h:\w \$ ' ${_container} sh
 set +v
 
 exit
