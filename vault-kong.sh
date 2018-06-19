@@ -65,8 +65,13 @@ if [[ (! -f ${_KONG_PEM}) || (! -f ${_KONG_SK}) ]]; then
     echo ">> (3) Create PKI materials for Kong TLS server certificate"
     /vault/pki-setup.sh /vault/pki-setup-config-kong.env
     chown vault:vault ${_CA_DIR}/${_KONG_SVC}.*
+else
+    echo ">> (3) PKI materials for Kong TLS server certificate already created"
+    openssl x509 -noout -subject -in ${_KONG_PEM}
+    openssl x509 -noout -issuer -in ${_KONG_PEM}
 fi
-    
+
+echo ""    
 echo ">> (4) Fetch the Root Token"
 _ROOT_TOKEN=$(cat ${_RESP_INIT} | jq -r '.root_token')
 
