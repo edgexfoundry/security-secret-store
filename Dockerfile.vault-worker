@@ -7,40 +7,34 @@
 #            San Francisco, CA 94105, USA
 #  @phone:   +1(415)-559-1100
 #
+#  ----------------------------------------------------------------------------------
 #  Copyright (c) 2018, ForgeRock
-#
-#  Licensed under the Apache License, Version 2.0 (the "License");
-#  you may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-#  Unless required by applicable law or agreed to in writing, software
-#  distributed under the License is distributed on an "AS IS" BASIS,
-#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#  See the License for the specific language governing permissions and
-#  limitations under the License.
+
+#  SPDX-License-Identifier: Apache-2.0'
 #  ----------------------------------------------------------------------------------
 FROM alpine:latest
 
+LABEL license='SPDX-License-Identifier: Apache-2.0' \
+      copyright='Copyright (c) 2018: ForgeRock'
+
 USER root
 
-# Vault init and unseal scripts 
+# Vault init and unseal scripts
 WORKDIR /vault
 
 # Copy main launcher [CMD]
 COPY vault-worker.sh .
 # Copy init-unseal process
 COPY vault-init-unseal.sh .
-# Copy PKI/TLS script/config for Kong 
+# Copy PKI/TLS script/config for Kong
 COPY pki-setup.sh .
 COPY pki-setup-config-kong.env .
-# Copy PKI/TLS setup and Vault import for Kong 
+# Copy PKI/TLS setup and Vault import for Kong
 COPY vault-kong.sh .
 
 # Create a vault user and group so the IDs get set the same way
-# Set the files ownership and rights 
-# Install pre-requisites for pki setup: bash/curl/jq/dig/openssl 
+# Set the files ownership and rights
+# Install pre-requisites for pki setup: bash/curl/jq/dig/openssl
 RUN addgroup vault && \
     adduser -S -G vault vault && \
     chmod 700 vault-*.sh pki-setup* && \
