@@ -34,9 +34,9 @@ fi
 # certificate (in PEM format).
 #
 _container=$1
-set -v
+set -x
 docker exec -it -e PS1='\u@\h:\w \$ ' -e VAULT_CAPATH='/vault/pki/EdgeXFoundryTrustCA/EdgeXFoundryTrustCA.pem' ${_container} sh
-set +v
+set +x
 
 exit
 #EOF
