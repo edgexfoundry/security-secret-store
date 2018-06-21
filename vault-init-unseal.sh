@@ -36,15 +36,17 @@ function houseKeeping() {
 #===================================== MAIN ====================================
 
 # Variables and parameters
-_VAULT_CONFIG_DIR="/vault/config"
-_VAULT_PKI_DIR="/vault/pki"
+_VAULT_DIR="/vault"
+_VAULT_CONFIG_DIR="${_VAULT_DIR}/config"
+_VAULT_PKI_DIR="${_VAULT_DIR}/pki"
+_VAULT_FILE_DIR="${_VAULT_DIR}/file"
 
-_PAYLOAD_INIT="${_VAULT_CONFIG_DIR}/payload-init.json"
-_PAYLOAD_UNSEAL="${_VAULT_CONFIG_DIR}/payload-unseal.json"
-_RESP_INIT="${_VAULT_CONFIG_DIR}/resp-init.json"
-_RESP_UNSEAL="${_VAULT_CONFIG_DIR}/resp-unseal.json"
+_PAYLOAD_INIT="${_VAULT_FILE_DIR}/payload-init.json"
+_PAYLOAD_UNSEAL="${_VAULT_FILE_DIR}/payload-unseal.json"
+_RESP_INIT="${_VAULT_FILE_DIR}/resp-init.json"
+_RESP_UNSEAL="${_VAULT_FILE_DIR}/resp-unseal.json"
 _VAULT_CONFIG="${_VAULT_CONFIG_DIR}/local.json"
-_TMP="${_VAULT_CONFIG_DIR}/_tmp.vault"
+_TMP="${_VAULT_FILE_DIR}/_tmp.vault"
 _EXIT="0"
 
 houseKeeping # temp files and payloads
@@ -140,6 +142,8 @@ fi
 # Vault Unsealing
 # ---------------------------------------------------------------------------
 echo ">> (2) Vault Unseal Process"
+
+# https://www.vaultproject.io/api/system/seal-status.html
 
 # Create the Vault unseal request payload with the unseal key
 cat > ${_PAYLOAD_UNSEAL} <<EOF
