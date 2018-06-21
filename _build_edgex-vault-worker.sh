@@ -1,6 +1,6 @@
 #!/bin/bash
 #  ----------------------------------------------------------------------------------
-#  _build_edgex-vault-init-unseal.sh	version 1.0 created June 15, 2018
+#  _build_edgex-vault-worker.sh		version 1.0 created June 15, 2018
 #
 #  @author:  Alain Pulluelo, ForgeRock
 #  @email:   alain.pulluelo@forgerock.com
@@ -23,7 +23,7 @@
 #  limitations under the License.
 #  ----------------------------------------------------------------------------------
 
-docker build --no-cache=true --rm=true -t edgexfoundry/docker-edgex-vault-init-unseal -f ./Dockerfile.vault-init-unseal .
+docker build --no-cache=true --rm=true -t edgexfoundry/docker-edgex-vault-worker -f ./Dockerfile.vault-worker .
 
 exit
 #EOF

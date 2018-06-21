@@ -1,5 +1,5 @@
 #  ----------------------------------------------------------------------------------
-#  Dockerfile.vault-init-unseal	version 1.0 created June 14, 2018
+#  Dockerfile.vault-worker		version 1.0 created June 14, 2018
 #
 #  @author:  Alain Pulluelo, ForgeRock
 #  @email:   alain.pulluelo@forgerock.com
@@ -29,7 +29,7 @@ USER root
 WORKDIR /vault
 
 # Copy main launcher [CMD]
-COPY vault-ready.sh .
+COPY vault-worker.sh .
 # Copy init-unseal process
 COPY vault-init-unseal.sh .
 # Copy PKI/TLS script/config for Kong 
@@ -51,4 +51,4 @@ RUN addgroup vault && \
 
 # Set the operation command
 ENTRYPOINT ["/bin/bash", "-c"]
-CMD ["/vault/vault-ready.sh"]
+CMD ["/vault/vault-worker.sh"]
