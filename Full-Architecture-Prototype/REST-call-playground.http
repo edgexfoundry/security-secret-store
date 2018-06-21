@@ -1,0 +1,29 @@
+### -----------------------------------------------------------------------------
+
+@Root_Token=8f161656-baa9-f312-7adf-69183345385d
+@key=bar
+@value=mysecret
+
+# Write a key/value
+POST https://vault-s1.edgex.net:8200/v1/secret/{{key}}
+X-Vault-Token: {{Root_Token}}
+Content-Type: application/json
+
+{"value": "{{value}}"}
+
+###
+# Read a key to get value
+GET https://vault-s1.edgex.net:8200/v1/secret/{{key}}
+X-Vault-Token: {{Root_Token}}
+
+### 
+# List Keys unbder secret/
+LIST https://vault-s1.edgex.net:8200/v1/secret
+X-Vault-Token: {{Root_Token}}
+
+###
+# Delete a key
+DELETE https://vault-s1.edgex.net:8200/v1/secret/{{key}}
+X-Vault-Token: {{Root_Token}}
+
+### -----------------------------------------------------------------------------
