@@ -1,6 +1,6 @@
 #!/bin/bash
 #  ----------------------------------------------------------------------------------
-#  vault-read.sh	version 1.0 created June 14, 2018
+#  vault-worker.sh	version 1.0 created June 14, 2018
 #
 #  @author:  Alain Pulluelo, ForgeRock
 #  @email:   alain.pulluelo@forgerock.com
@@ -23,13 +23,18 @@
 #  limitations under the License.
 #  ----------------------------------------------------------------------------------
 
-# Init/Unseal processes
-/vault/vault-init-unseal.sh
+while true
+do
+   # Init/Unseal processes
+   /vault/vault-init-unseal.sh
 
-# If Vault init/unseal was OK... prepare materials for Kong
-if [[ $? == 0 ]]; then
-    /vault/vault-kong.sh
-fi
+   # If Vault init/unseal was OK... eventually prepare materials for Kong
+   if [[ $? == 0 ]]; then
+       /vault/vault-kong.sh
+   fi
+
+   sleep ${WATCHDOG_DELAY}
+done
 
 exit
 
