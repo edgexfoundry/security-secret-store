@@ -1,0 +1,48 @@
+#  ----------------------------------------------------------------------------------
+#  Dockerfile.vault	version 1.0 created June 14, 2018
+#
+#  @author:  Alain Pulluelo, ForgeRock
+#  @email:   alain.pulluelo@forgerock.com
+#  @address: 201 Mission St, Suite 2900
+#            San Francisco, CA 94105, USA
+#  @phone:   +1(415)-559-1100
+
+#  Copyright (c) 2018, ForgeRock
+
+#  SPDX-License-Identifier: Apache-2.0'
+#  ----------------------------------------------------------------------------------
+FROM vault:0.10.2
+
+LABEL license='SPDX-License-Identifier: Apache-2.0' \
+      copyright='Copyright (c) 2018: ForgeRock'
+
+USER root
+
+# Vault Config File
+WORKDIR /vault/config
+COPY local-tls.json ./local.json
+
+# Vault PKI/TLS setup/config and X.509 materials
+WORKDIR /vault
+COPY pki-setup.sh .
+COPY pki-setup-config-vault.env .
+
+# install pre-requisites for pki setup: bash/openssl, pki/tls setup and housekeeping
+RUN apk --no-cache update && \
+    apk --no-cache add bash openssl && \
+    chown -R vault:vault /vault && \
+    chmod 644 /vault/config/local.json && \
+    chmod 744 pki-setup* && \
+    ./pki-setup.sh pki-setup-config-vault.env && \
+    chown -R vault:vault /vault/pki && \
+    chmod 750 /vault/pki && \
+    chmod 640 /vault/pki/*/* && \ 
+    apk del --purge bash openssl && \
+    rm -f /vault/pki-setup.sh /vault/pki-setup-config-vault.env && \
+    rm -f /var/cache/apk/*
+
+VOLUME /vault/config
+VOLUME /vault/pki
+
+# Set the default path for Docker exec sessions
+WORKDIR /
