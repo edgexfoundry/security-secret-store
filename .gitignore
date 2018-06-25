@@ -1,1 +1,3 @@
 _exec_bash.sh
+_build_edgex-vault-worker.sh
+_build_edgex-vault.sh
