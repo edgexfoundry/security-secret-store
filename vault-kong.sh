@@ -78,10 +78,10 @@ else
 fi
 
 echo ""    
-echo ">> (4) Fetch the Root Token"
+echo ">> (4) Fetch the Vault Root Token"
 _ROOT_TOKEN=$(cat ${_RESP_INIT} | jq -r '.root_token')
 
-echo ">> (5) Test if the Key/Value already exists"
+echo ">> (5) Test if the Kong Key/Value already exists"
 curl -sw 'HTTP-STATUS: %{http_code}\n' ${_TLS} ${_REDIRECT} \
     --header "X-Vault-Token: ${_ROOT_TOKEN}" \
     --request GET \
@@ -97,12 +97,12 @@ case ${result} in
     ;;
     # HTTP-STATUS: 404 -> Key not found
     "404")
-        echo ">> (6) Create JSON with TLS certificate and private key (base64 encoded)"
+        echo ">> (6) Create the Kong JSON with TLS certificate and private key (base64 encoded)"
         jq -n --arg cert "$(cat ${_KONG_PEM}|base64)" \
             --arg sk "$(cat ${_KONG_SK}|base64)" \
             '{cert:$cert,sk:$sk}' > ${_PAYLOAD_KONG}
 
-        echo ">> (7) Load the JSON PKI materials in Vault"
+        echo ">> (7) Load the Kong JSON PKI materials in Vault"
         curl -sw 'HTTP-STATUS: %{http_code}\n' ${_TLS} ${_REDIRECT} \
             --header "X-Vault-Token: ${_ROOT_TOKEN}" \
             --header "Content-Type: application/json" \
