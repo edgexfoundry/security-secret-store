@@ -23,14 +23,17 @@
 #  limitations under the License.
 #  ----------------------------------------------------------------------------------
 
+# Variables and parameters
+_VAULT_DIR=${_VAULT_DIR:-/vault}
+
 while true
 do
    # Init/Unseal processes
-   /vault/vault-init-unseal.sh
+   ${_VAULT_DIR}/vault-init-unseal.sh
 
    # If Vault init/unseal was OK... eventually prepare materials for Kong
    if [[ $? == 0 ]]; then
-       /vault/vault-kong.sh
+       ${_VAULT_DIR}/vault-kong.sh
    fi
 
    sleep ${WATCHDOG_DELAY}
