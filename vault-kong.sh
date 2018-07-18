@@ -63,13 +63,14 @@ _VAULT_SVC="edgex-vault"
 _EDGEX_DOMAIN=""
 _VAULT_PORT="8200"
 _VAULT_API_PATH_KONG="/v1/secret/edgex/pki/tls/${_KONG_SVC}"
+_PKI_SETUP_KONG_ENV=${_PKI_SETUP_KONG_ENV:-pki-setup-config-kong.env}
 
 houseKeeping # temp files and payloads
 
 # Generate Kong PKI/TLS materials if they haven't been already...
 if [[ (! -f ${_KONG_PEM}) || (! -f ${_KONG_SK}) ]]; then
     echo ">> (3) Create PKI materials for Kong TLS server certificate"
-    ${_VAULT_DIR}/pki-setup.sh ${_VAULT_DIR}/pki-setup-config-kong.env
+    ${_VAULT_DIR}/pki-setup.sh ${_PKI_SETUP_KONG_ENV}
     chown vault:vault ${_CA_DIR}/${_KONG_SVC}.*
 else
     echo ">> (3) PKI materials for Kong TLS server certificate already created"
