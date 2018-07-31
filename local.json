@@ -6,7 +6,7 @@ listener "tcp" {
 
 backend "consul" {
   path = "vault/"
-  address = "edgex-config-seed:8500"
+  address = "edgex-core-consul:8500"
   scheme = "http"
   redirect_addr = "http://edgex-vault:8200"
   cluster_addr = "http://edgex-vault:8201"
