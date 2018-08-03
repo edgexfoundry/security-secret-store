@@ -190,6 +190,7 @@ function vaultRegistered() {
 #===================================== MAIN INIT ===============================
 
 # Variables and parameters
+_VAULT_SCRIPT_DIR=${_VAULT_SCRIPT_DIR:-/vault}
 _VAULT_DIR=${_VAULT_DIR:-/vault}
 _VAULT_CONFIG_DIR="${_VAULT_DIR}/config"
 _VAULT_PKI_DIR="${_VAULT_DIR}/pki"

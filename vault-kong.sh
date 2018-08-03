@@ -35,6 +35,7 @@ function houseKeeping() {
 #===================================== MAIN ====================================
 
 # Variables and parameters
+_VAULT_SCRIPT_DIR=${_VAULT_SCRIPT_DIR:-/vault}
 _VAULT_DIR=${_VAULT_DIR:-/vault}
 _VAULT_CONFIG_DIR="${_VAULT_DIR}/config"
 _VAULT_PKI_DIR="${_VAULT_DIR}/pki"
@@ -70,7 +71,7 @@ houseKeeping # temp files and payloads
 # Generate Kong PKI/TLS materials if they haven't been already...
 if [[ (! -f ${_KONG_PEM}) || (! -f ${_KONG_SK}) ]]; then
     echo ">> (3) Create PKI materials for Kong TLS server certificate"
-    ${_VAULT_DIR}/pki-setup.sh ${_PKI_SETUP_KONG_ENV}
+    ${_VAULT_SCRIPT_DIR}/pki-setup.sh ${_PKI_SETUP_KONG_ENV}
     chown vault:vault ${_CA_DIR}/${_KONG_SVC}.*
 else
     echo ">> (3) PKI materials for Kong TLS server certificate already created"

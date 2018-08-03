@@ -24,16 +24,16 @@
 #  ----------------------------------------------------------------------------------
 
 # Variables and parameters
-_VAULT_DIR=${_VAULT_DIR:-/vault}
+_VAULT_SCRIPT_DIR=${_VAULT_SCRIPT_DIR:-/vault}
 
 while true
 do
    # Init/Unseal processes
-   ${_VAULT_DIR}/vault-init-unseal.sh
+   ${_VAULT_SCRIPT_DIR}/vault-init-unseal.sh
 
    # If Vault init/unseal was OK... eventually prepare materials for Kong
    if [[ $? == 0 ]]; then
-       ${_VAULT_DIR}/vault-kong.sh
+       ${_VAULT_SCRIPT_DIR}/vault-kong.sh
    fi
 
    sleep ${WATCHDOG_DELAY}
