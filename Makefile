@@ -7,7 +7,7 @@ DOCKERS=docker_vault docker_vault_worker
 
 VERSION=$(shell cat ./VERSION)
 
-GIT_SHA=$(shell git rev-parse --short HEAD)
+GIT_SHA=$(shell git rev-parse HEAD)
 
 clean:
 	rm -f $(MICROSERVICES)
