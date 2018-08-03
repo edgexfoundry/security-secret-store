@@ -30,7 +30,7 @@ volumes:
       - vault-logs:/vault/logs
     depends_on:
       - volume
-      - config-seed
+      - consul
 
   vault-worker:
     image: "edgexfoundry/docker-edgex-vault-worker:latest"
@@ -45,5 +45,5 @@ volumes:
       - vault-file:/vault/file
     depends_on:
       - volume
-      - config-seed
+      - consul
       - vault
