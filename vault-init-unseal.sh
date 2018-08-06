@@ -210,7 +210,7 @@ _CA_PEM="${_CA_DIR}/${_CA}.pem"
 _TLS=" --cacert ${_CA_PEM}"
 _REDIRECT=" --location" # If HTTP temporary redirect (HTTP STATUS 307) follow it
 _HTTP_SCHEME="https"
-_VAULT_SVC="edgex-vault"
+_VAULT_SVC=${_VAULT_SVC:-"edgex-vault"}
 _EDGEX_DOMAIN=""
 _VAULT_PORT="8200"
 
