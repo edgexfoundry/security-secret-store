@@ -55,12 +55,12 @@ _CA_DIR="${_VAULT_PKI_DIR}/${_CA}"
 _CA_PEM="${_CA_DIR}/${_CA}.pem"
 _TLS=" --cacert ${_CA_PEM}"
 
-_KONG_SVC="edgex-kong"
+_KONG_SVC=${_KONG_SVC:-"edgex-kong"}
 _KONG_PEM="${_CA_DIR}/${_KONG_SVC}.pem"
 _KONG_SK="${_CA_DIR}/${_KONG_SVC}.priv.key"
 _REDIRECT=" --location" # If HTTP temporary redirect (HTTP STATUS 307) follow it
 _HTTP_SCHEME="https"
-_VAULT_SVC="edgex-vault"
+_VAULT_SVC=${_VAULT_SVC:-"edgex-vault"}
 _EDGEX_DOMAIN=""
 _VAULT_PORT="8200"
 _VAULT_API_PATH_KONG="/v1/secret/edgex/pki/tls/${_KONG_SVC}"
