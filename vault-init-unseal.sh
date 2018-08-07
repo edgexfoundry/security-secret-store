@@ -68,7 +68,11 @@ EOF
             _ROOT_TOKEN=$(head -1 ${_TMP} | jq -r '.root_token')
             # save the key and the root token JSON (strip HTTP-STATUS)
             head -1 ${_TMP} | jq '.' > ${_RESP_INIT}
-            chown vault:vault ${_RESP_INIT}
+            # Don't chown in snap, as snaps don't support daemons using
+            # setuid/gid to drop from root to a specified user/group.
+            if [ -z "$SNAP" ]; then
+                chown vault:vault ${_RESP_INIT}
+            fi
             echo ">> Vault successfully initialized"
         ;;
         # If Vault already initialized
@@ -150,7 +154,11 @@ EOF
         if [[ ${result} == "false" ]]; then
             # save the unseal JSON response (strip HTTP-STATUS)
             head -1 ${_TMP} | jq '.' > ${_RESP_UNSEAL}
-            chown vault:vault ${_RESP_UNSEAL}
+            # Don't chown in snap, as snaps don't support daemons using
+            # setuid/gid to drop from root to a specified user/group.
+            if [ -z "$SNAP" ]; then
+                chown vault:vault ${_RESP_UNSEAL}
+            fi
             echo ">> Vault successfully unsealed"
         else
             echo ">> Vault unseal ok but incoherent sealed status!"
