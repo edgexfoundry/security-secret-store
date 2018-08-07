@@ -71,7 +71,12 @@ houseKeeping # temp files and payloads
 if [[ (! -f ${_KONG_PEM}) || (! -f ${_KONG_SK}) ]]; then
     echo ">> (3) Create PKI materials for Kong TLS server certificate"
     ${_VAULT_SCRIPT_DIR}/pki-setup.sh ${_PKI_SETUP_KONG_ENV}
-    chown vault:vault ${_CA_DIR}/${_KONG_SVC}.*
+    
+    # Don't chown in snap, as snaps don't support daemons using
+    # setuid/gid to drop from root to a specified user/group.
+    if [ -z "$SNAP" ]; then
+        chown vault:vault ${_CA_DIR}/${_KONG_SVC}.*
+    fi
 else
     echo ">> (3) PKI materials for Kong TLS server certificate already created"
     openssl x509 -noout -subject -in ${_KONG_PEM}
