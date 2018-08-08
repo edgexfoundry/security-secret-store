@@ -22,6 +22,8 @@ USER root
 WORKDIR /vault/config
 COPY local-tls.json ./local.json
 
+RUN chmod 644 local.json
+
 # Vault PKI/TLS setup/config and X.509 materials
 WORKDIR /vault
 COPY pki-setup.sh .
