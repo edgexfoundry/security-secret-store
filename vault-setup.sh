@@ -35,6 +35,5 @@ if [ -z "$SNAP" ]; then
     chown -R vault:vault ${_VAULT_DIR}/pki
 fi
 
-chmod 644 ${_VAULT_DIR}/config/local.json
 chmod 750 ${_VAULT_DIR}/pki
 chmod 640 ${_VAULT_DIR}/pki/*/*
