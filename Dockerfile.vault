@@ -26,17 +26,14 @@ COPY local-tls.json ./local.json
 WORKDIR /vault
 COPY pki-setup.sh .
 COPY pki-setup-config-vault.env .
+COPY vault-setup.sh .
 
 # install pre-requisites for pki setup: bash/openssl, pki/tls setup and housekeeping
 RUN apk --no-cache update && \
     apk --no-cache add bash openssl && \
-    chown -R vault:vault /vault && \
-    chmod 644 /vault/config/local.json && \
     chmod 744 pki-setup* && \
-    ./pki-setup.sh pki-setup-config-vault.env && \
-    chown -R vault:vault /vault/pki && \
-    chmod 750 /vault/pki && \
-    chmod 640 /vault/pki/*/* && \ 
+    chmod 744 vault-setup* && \
+    ./vault-setup.sh && \
     apk del --purge bash openssl && \
     rm -f /vault/pki-setup.sh /vault/pki-setup-config-vault.env && \
     rm -f /var/cache/apk/*

@@ -1,14 +1,11 @@
 #!/bin/bash
 #  ----------------------------------------------------------------------------------
-#  vault-worker.sh	version 1.0 created June 14, 2018
+#  vault-setup.sh    version 1.0 created July 18, 2018
 #
-#  @author:  Alain Pulluelo, ForgeRock
-#  @email:   alain.pulluelo@forgerock.com
-#  @address: 201 Mission St, Suite 2900
-#            San Francisco, CA 94105, USA
-#  @phone:   +1(415)-559-1100
+#  @author:  Tony Espy, Canonical
+#  @email:   espy@canonical.com
 #
-#  Copyright (c) 2018, ForgeRock
+#  Copyright (c) 2018, Canonical Ltd
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -24,21 +21,19 @@
 #  ----------------------------------------------------------------------------------
 
 # Variables and parameters
+echo ">> Setup _VAULT_DIR and fix permissions"
 _VAULT_DIR=${_VAULT_DIR:-/vault}
+_PKI_SETUP_VAULT_ENV=${_PKI_SETUP_VAULT_ENV:-pki-setup-config-vault.env}
 
-while true
-do
-   # Init/Unseal processes
-   ${_VAULT_DIR}/vault-init-unseal.sh
+./pki-setup.sh ${_PKI_SETUP_VAULT_ENV}
 
-   # If Vault init/unseal was OK... eventually prepare materials for Kong
-   if [[ $? == 0 ]]; then
-       ${_VAULT_DIR}/vault-kong.sh
-   fi
+# Don't chown in snap, as snaps don't support daemons using
+# setuid/gid to drop from root to a specified user/group.
+if [ -z "$SNAP" ]; then
+    chown -R vault:vault ${_VAULT_DIR}
+    chown -R vault:vault ${_VAULT_DIR}/pki
+fi
 
-   sleep ${WATCHDOG_DELAY}
-done
-
-exit
-
-#EOF
+chmod 644 ${_VAULT_DIR}/config/local.json
+chmod 750 ${_VAULT_DIR}/pki
+chmod 640 ${_VAULT_DIR}/pki/*/*
