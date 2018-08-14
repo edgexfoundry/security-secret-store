@@ -23,9 +23,10 @@
 # Variables and parameters
 echo ">> Setup _VAULT_DIR and fix permissions"
 _VAULT_DIR=${_VAULT_DIR:-/vault}
+_VAULT_SCRIPT_DIR=${_VAULT_SCRIPT_DIR:-/vault}
 _PKI_SETUP_VAULT_ENV=${_PKI_SETUP_VAULT_ENV:-pki-setup-config-vault.env}
 
-./pki-setup.sh ${_PKI_SETUP_VAULT_ENV}
+${_VAULT_SCRIPT_DIR}/pki-setup.sh ${_PKI_SETUP_VAULT_ENV}
 
 # Don't chown in snap, as snaps don't support daemons using
 # setuid/gid to drop from root to a specified user/group.
@@ -34,6 +35,5 @@ if [ -z "$SNAP" ]; then
     chown -R vault:vault ${_VAULT_DIR}/pki
 fi
 
-chmod 644 ${_VAULT_DIR}/config/local.json
 chmod 750 ${_VAULT_DIR}/pki
 chmod 640 ${_VAULT_DIR}/pki/*/*
