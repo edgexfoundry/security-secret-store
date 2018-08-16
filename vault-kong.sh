@@ -35,7 +35,8 @@ function houseKeeping() {
 #===================================== MAIN ====================================
 
 # Variables and parameters
-_VAULT_DIR="/vault"
+_VAULT_SCRIPT_DIR=${_VAULT_SCRIPT_DIR:-/vault}
+_VAULT_DIR=${_VAULT_DIR:-/vault}
 _VAULT_CONFIG_DIR="${_VAULT_DIR}/config"
 _VAULT_PKI_DIR="${_VAULT_DIR}/pki"
 _VAULT_FILE_DIR="${_VAULT_DIR}/file"
@@ -54,12 +55,12 @@ _CA_DIR="${_VAULT_PKI_DIR}/${_CA}"
 _CA_PEM="${_CA_DIR}/${_CA}.pem"
 _TLS=" --cacert ${_CA_PEM}"
 
-_KONG_SVC="edgex-kong"
+_KONG_SVC=${_KONG_SVC:-"edgex-kong"}
 _KONG_PEM="${_CA_DIR}/${_KONG_SVC}.pem"
 _KONG_SK="${_CA_DIR}/${_KONG_SVC}.priv.key"
 _REDIRECT=" --location" # If HTTP temporary redirect (HTTP STATUS 307) follow it
 _HTTP_SCHEME="https"
-_VAULT_SVC="edgex-vault"
+_VAULT_SVC=${_VAULT_SVC:-"edgex-vault"}
 _EDGEX_DOMAIN=""
 _VAULT_PORT="8200"
 _VAULT_API_PATH_KONG="/v1/secret/edgex/pki/tls/${_KONG_SVC}"
@@ -69,8 +70,13 @@ houseKeeping # temp files and payloads
 # Generate Kong PKI/TLS materials if they haven't been already...
 if [[ (! -f ${_KONG_PEM}) || (! -f ${_KONG_SK}) ]]; then
     echo ">> (3) Create PKI materials for Kong TLS server certificate"
-    /vault/pki-setup.sh /vault/pki-setup-config-kong.env
-    chown vault:vault ${_CA_DIR}/${_KONG_SVC}.*
+    ${_VAULT_SCRIPT_DIR}/pki-setup.sh ${_PKI_SETUP_KONG_ENV}
+    
+    # Don't chown in snap, as snaps don't support daemons using
+    # setuid/gid to drop from root to a specified user/group.
+    if [ -z "$SNAP" ]; then
+        chown vault:vault ${_CA_DIR}/${_KONG_SVC}.*
+    fi
 else
     echo ">> (3) PKI materials for Kong TLS server certificate already created"
     openssl x509 -noout -subject -in ${_KONG_PEM}
