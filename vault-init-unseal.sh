@@ -68,7 +68,11 @@ EOF
             _ROOT_TOKEN=$(head -1 ${_TMP} | jq -r '.root_token')
             # save the key and the root token JSON (strip HTTP-STATUS)
             head -1 ${_TMP} | jq '.' > ${_RESP_INIT}
-            chown vault:vault ${_RESP_INIT}
+            # Don't chown in snap, as snaps don't support daemons using
+            # setuid/gid to drop from root to a specified user/group.
+            if [ -z "$SNAP" ]; then
+                chown vault:vault ${_RESP_INIT}
+            fi
             echo ">> Vault successfully initialized"
         ;;
         # If Vault already initialized
@@ -150,7 +154,11 @@ EOF
         if [[ ${result} == "false" ]]; then
             # save the unseal JSON response (strip HTTP-STATUS)
             head -1 ${_TMP} | jq '.' > ${_RESP_UNSEAL}
-            chown vault:vault ${_RESP_UNSEAL}
+            # Don't chown in snap, as snaps don't support daemons using
+            # setuid/gid to drop from root to a specified user/group.
+            if [ -z "$SNAP" ]; then
+                chown vault:vault ${_RESP_UNSEAL}
+            fi
             echo ">> Vault successfully unsealed"
         else
             echo ">> Vault unseal ok but incoherent sealed status!"
@@ -190,6 +198,7 @@ function vaultRegistered() {
 #===================================== MAIN INIT ===============================
 
 # Variables and parameters
+_VAULT_SCRIPT_DIR=${_VAULT_SCRIPT_DIR:-/vault}
 _VAULT_DIR=${_VAULT_DIR:-/vault}
 _VAULT_CONFIG_DIR="${_VAULT_DIR}/config"
 _VAULT_PKI_DIR="${_VAULT_DIR}/pki"
@@ -209,7 +218,7 @@ _CA_PEM="${_CA_DIR}/${_CA}.pem"
 _TLS=" --cacert ${_CA_PEM}"
 _REDIRECT=" --location" # If HTTP temporary redirect (HTTP STATUS 307) follow it
 _HTTP_SCHEME="https"
-_VAULT_SVC="edgex-vault"
+_VAULT_SVC=${_VAULT_SVC:-"edgex-vault"}
 _EDGEX_DOMAIN=""
 _VAULT_PORT="8200"
 
