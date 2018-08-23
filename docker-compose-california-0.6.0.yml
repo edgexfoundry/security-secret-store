@@ -77,7 +77,7 @@ services:
       - consul
 
   vault:
-    image: edgexfoundry/docker-edgex-security-vault:0.1.0
+    image: edgexfoundry/docker-edgex-vault:latest
     container_name: edgex-vault
     hostname: edgex-vault
     networks:
@@ -101,7 +101,7 @@ services:
       - consul
 
   vault-worker:
-    image: edgexfoundry/docker-edgex-security-vault-worker:0.1.0
+    image: edgexfoundry/docker-edgex-vault-worker:latest
     container_name: edgex-vault-worker
     hostname: edgex-vault-worker
     networks:
