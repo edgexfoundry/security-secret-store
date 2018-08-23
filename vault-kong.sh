@@ -49,7 +49,7 @@ _VAULT_CONFIG="${_VAULT_CONFIG_DIR}/local.json"
 _TMP="${_VAULT_FILE_DIR}/_tmp.vault"
 _EXIT="0"
 
-_CA="EdgeXFoundryTrustCA"
+_CA="EdgeXFoundryCA"
 _CA_DIR="${_VAULT_PKI_DIR}/${_CA}"
 _CA_PEM="${_CA_DIR}/${_CA}.pem"
 _TLS=" --cacert ${_CA_PEM}"
@@ -69,7 +69,7 @@ houseKeeping # temp files and payloads
 # Generate Kong PKI/TLS materials if they haven't been already...
 if [[ (! -f ${_KONG_PEM}) || (! -f ${_KONG_SK}) ]]; then
     echo ">> (3) Create PKI materials for Kong TLS server certificate"
-    /vault/pki-setup.sh /vault/pki-setup-config-kong.env
+    /vault/pkisetup --config /vault/pkisetup-kong.json
     chown vault:vault ${_CA_DIR}/${_KONG_SVC}.*
 else
     echo ">> (3) PKI materials for Kong TLS server certificate already created"
