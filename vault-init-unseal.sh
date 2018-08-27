@@ -203,7 +203,7 @@ _VAULT_CONFIG="${_VAULT_CONFIG_DIR}/local.json"
 _TMP="${_VAULT_FILE_DIR}/_tmp.vault"
 _EXIT="0"
 
-_CA="EdgeXFoundryTrustCA"
+_CA="EdgeXFoundryCA"
 _CA_DIR="${_VAULT_PKI_DIR}/${_CA}"
 _CA_PEM="${_CA_DIR}/${_CA}.pem"
 _TLS=" --cacert ${_CA_PEM}"
