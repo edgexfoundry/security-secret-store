@@ -24,25 +24,16 @@ COPY local-tls.json ./local.json
 
 # Vault PKI/TLS setup/config and X.509 materials
 WORKDIR /vault
-COPY pki-setup.sh .
-COPY pki-setup-config-vault.env .
+COPY pkisetup.src/pkisetup .
+COPY pkisetup.src/pkisetup-vault.json .
 
-# install pre-requisites for pki setup: bash/openssl, pki/tls setup and housekeeping
-RUN apk --no-cache update && \
-    apk --no-cache add bash openssl && \
-    chown -R vault:vault /vault && \
+# Run Vault PKI/TLS setup and housekeeping
+RUN chown -R vault:vault /vault && \
     chmod 644 /vault/config/local.json && \
-    chmod 744 pki-setup* && \
-    ./pki-setup.sh pki-setup-config-vault.env && \
+    chmod 744 pkisetup* && \
+    ./pkisetup --config pkisetup-vault.json && \
     chown -R vault:vault /vault/pki && \
-    chmod 750 /vault/pki && \
-    chmod 640 /vault/pki/*/* && \ 
-    apk del --purge bash openssl && \
-    rm -f /vault/pki-setup.sh /vault/pki-setup-config-vault.env && \
-    rm -f /var/cache/apk/*
+    rm -f /vault/pkisetup /vault/pkisetup-vault.json
 
 VOLUME /vault/config
 VOLUME /vault/pki
-
-# Set the default path for Docker exec sessions
-WORKDIR /

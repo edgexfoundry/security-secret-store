@@ -26,9 +26,9 @@ WORKDIR /vault
 COPY vault-worker.sh .
 # Copy init-unseal process
 COPY vault-init-unseal.sh .
-# Copy PKI/TLS script/config for Kong
-COPY pki-setup.sh .
-COPY pki-setup-config-kong.env .
+# Copy PKI/TLS binary/config for Kong
+COPY pkisetup.src/pkisetup .
+COPY pkisetup.src/pkisetup-kong.json .
 # Copy PKI/TLS setup and Vault import for Kong
 COPY vault-kong.sh .
 
@@ -37,8 +37,8 @@ COPY vault-kong.sh .
 # Install pre-requisites for pki setup: bash/curl/jq/dig/openssl
 RUN addgroup vault && \
     adduser -S -G vault vault && \
-    chmod 700 vault-*.sh pki-setup* && \
-    chown vault:vault vault-*.sh pki-setup* && \
+    chmod 700 vault-*.sh pkisetup* && \
+    chown vault:vault vault-*.sh pkisetup* && \
     apk --no-cache update && \
     apk --no-cache add bash curl jq bind-tools openssl && \
     rm -f /var/cache/apk/*
