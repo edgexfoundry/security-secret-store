@@ -100,7 +100,7 @@ case ${result} in
         echo ">> (6) Create the Kong JSON with TLS certificate and private key (base64 encoded)"
         jq -n --arg cert "$(cat ${_KONG_PEM}|base64)" \
             --arg sk "$(cat ${_KONG_SK}|base64)" \
-            '{cert:$cert,sk:$sk}' > ${_PAYLOAD_KONG}
+            '{cert:$cert,key:$sk}' > ${_PAYLOAD_KONG}
 
         echo ">> (7) Load the Kong JSON PKI materials in Vault"
         curl -sw 'HTTP-STATUS: %{http_code}\n' ${_TLS} ${_REDIRECT} \
