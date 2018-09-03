@@ -169,7 +169,7 @@ services:
     networks:
         - edgex-network
     volumes:
-        - vault-config:/vault/file 
+        - vault-file:/vault/file 
     depends_on:
         - vault
         - kong-db
