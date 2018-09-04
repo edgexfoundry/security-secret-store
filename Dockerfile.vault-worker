@@ -1,6 +1,6 @@
 #  ----------------------------------------------------------------------------------
 #  Dockerfile.vault-worker		version 1.0 created June 14, 2018
-#
+#  
 #  @author:  Alain Pulluelo, ForgeRock
 #  @email:   alain.pulluelo@forgerock.com
 #  @address: 201 Mission St, Suite 2900
@@ -12,37 +12,19 @@
 
 #  SPDX-License-Identifier: Apache-2.0'
 #  ----------------------------------------------------------------------------------
-FROM alpine:latest
+#  updated by Tingyu Zeng, Aug 28th, 2018
+#------------------------------------------------------------------------------------
 
-LABEL license='SPDX-License-Identifier: Apache-2.0' \
-      copyright='Copyright (c) 2018: ForgeRock'
+FROM alpine:3.7
 
-USER root
+RUN mkdir -p /edgex/res
 
-# Vault init and unseal scripts
-WORKDIR /vault
+WORKDIR /edgex
 
-# Copy main launcher [CMD]
-COPY vault-worker.sh .
-# Copy init-unseal process
-COPY vault-init-unseal.sh .
-# Copy PKI/TLS binary/config for Kong
-COPY pkisetup.src/pkisetup .
-COPY pkisetup.src/pkisetup-kong.json .
-# Copy PKI/TLS setup and Vault import for Kong
-COPY vault-kong.sh .
+COPY core/res/configuration-docker.toml res/configuration.toml
 
-# Create a vault user and group so the IDs get set the same way
-# Set the files ownership and rights
-# Install pre-requisites for pki setup: bash/curl/jq/dig/openssl
-RUN addgroup vault && \
-    adduser -S -G vault vault && \
-    chmod 700 vault-*.sh pkisetup* && \
-    chown vault:vault vault-*.sh pkisetup* && \
-    apk --no-cache update && \
-    apk --no-cache add bash curl jq bind-tools openssl && \
-    rm -f /var/cache/apk/*
+ADD core/edgex-vault-worker .
 
-# Set the operation command
-ENTRYPOINT ["/bin/bash", "-c"]
-CMD ["/vault/vault-worker.sh"]
+ENTRYPOINT ["./edgex-vault-worker"]
+
+CMD  ["--init=true"]

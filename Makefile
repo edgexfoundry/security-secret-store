@@ -5,6 +5,7 @@
 GO=CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go
 DOCKERS=docker_vault docker_vault_worker
 PKISETUP=pkisetup
+VAULTWORKER=edgex-vault-worker
 
 .PHONY: $(DOCKERS)
 
@@ -12,11 +13,15 @@ VERSION=$(shell cat ./VERSION)
 GIT_SHA=$(shell git rev-parse HEAD)
 
 clean:
-	rm -f $(MICROSERVICES)
 	cd pkisetup.src && rm -f $(PKISETUP)
+	cd core && rm -f $(VAULTWORKER)
 
 build:
 	cd pkisetup.src && $(GO) build -a -ldflags="-s -w" -o $(PKISETUP) .
+	cd core && $(GO) build -o $(VAULTWORKER)
+
+run:
+	cd core && ./edgex-vault-worker init=true
 
 docker: $(DOCKERS)
 
