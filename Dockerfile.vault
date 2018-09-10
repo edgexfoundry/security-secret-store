@@ -26,14 +26,19 @@ COPY local-tls.json ./local.json
 WORKDIR /vault
 COPY pkisetup.src/pkisetup .
 COPY pkisetup.src/pkisetup-vault.json .
+# Kong PKI/TLS setup/config and X.509 materials
+COPY pkisetup.src/pkisetup-kong.json .
 
-# Run Vault PKI/TLS setup and housekeeping
-RUN chown -R vault:vault /vault && \
+# Create assets folder (needed for unseal key/s, root token and tmp)
+# Run CA/Vault and Kong PKI/TLS setups and peform housekeeping tasks
+RUN mkdir /vault/config/assets && \
+    chown -R vault:vault /vault && \
     chmod 644 /vault/config/local.json && \
     chmod 744 pkisetup* && \
     ./pkisetup --config pkisetup-vault.json && \
-    chown -R vault:vault /vault/pki && \
-    rm -f /vault/pkisetup /vault/pkisetup-vault.json
+    echo "" && \
+    ./pkisetup --config pkisetup-kong.json && \
+    chown -R vault:vault /vault/config/pki && \
+    rm -f /vault/pkisetup /vault/pkisetup-vault.json /vault/pkisetup-kong.json
 
 VOLUME /vault/config
-VOLUME /vault/pki

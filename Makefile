@@ -30,7 +30,7 @@ docker_vault: build
 		-t edgexfoundry/docker-edgex-vault:latest \
 		.
 
-docker_vault_worker: build
+docker_vault_worker: 
 	docker build \
         --no-cache=true --rm=true \
 		-f Dockerfile.vault-worker \
