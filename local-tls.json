@@ -3,9 +3,9 @@ listener "tcp" {
   tls_disable = "0" 
   cluster_address = "edgex-vault:8201"
   tls_min_version = "tls12"
-  tls_client_ca_file ="/vault/pki/EdgeXFoundryCA/EdgeXFoundryCA.pem"
-  tls_cert_file ="/vault/pki/EdgeXFoundryCA/edgex-vault.pem"
-  tls_key_file = "/vault/pki/EdgeXFoundryCA/edgex-vault.priv.key"
+  tls_client_ca_file ="/vault/config/pki/EdgeXFoundryCA/EdgeXFoundryCA.pem"
+  tls_cert_file ="/vault/config/pki/EdgeXFoundryCA/edgex-vault.pem"
+  tls_key_file = "/vault/config/pki/EdgeXFoundryCA/edgex-vault.priv.key"
 }
 
 backend "consul" {

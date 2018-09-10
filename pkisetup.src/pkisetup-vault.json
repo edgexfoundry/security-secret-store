@@ -1,6 +1,6 @@
 {
     "create_new_rootca": "true",
-    "working_dir": ".",
+    "working_dir": "./config",
     "pki_setup_dir": "pki",
     "dump_config": "true",
     "key_scheme": {
