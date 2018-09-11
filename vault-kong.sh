@@ -37,17 +37,14 @@ function houseKeeping() {
 # Variables and parameters
 _VAULT_DIR="/vault"
 _VAULT_CONFIG_DIR="${_VAULT_DIR}/config"
-_VAULT_PKI_DIR="${_VAULT_DIR}/pki"
-_VAULT_FILE_DIR="${_VAULT_DIR}/file"
+_VAULT_PKI_DIR="${_VAULT_CONFIG_DIR}/pki"
+_VAULT_ASSETS="${_VAULT_CONFIG_DIR}/assets"
 
-_PAYLOAD_INIT="${_VAULT_FILE_DIR}/payload-init.json"
-_PAYLOAD_UNSEAL="${_VAULT_FILE_DIR}/payload-unseal.json"
-_PAYLOAD_KONG="${_VAULT_FILE_DIR}/payload-kong.json"
-_RESP_INIT="${_VAULT_FILE_DIR}/resp-init.json"
-_RESP_UNSEAL="${_VAULT_FILE_DIR}/resp-unseal.json"
-_VAULT_CONFIG="${_VAULT_CONFIG_DIR}/local.json"
-_TMP="${_VAULT_FILE_DIR}/_tmp.vault"
+_PAYLOAD_KONG="${_VAULT_ASSETS}/payload-kong.json"
+_RESP_INIT="${_VAULT_ASSETS}/resp-init.json"
+_TMP="${_VAULT_ASSETS}/_tmp.vault"
 _EXIT="0"
+_WARNING="0"
 
 _CA="EdgeXFoundryCA"
 _CA_DIR="${_VAULT_PKI_DIR}/${_CA}"
@@ -66,13 +63,12 @@ _VAULT_API_PATH_KONG="/v1/secret/edgex/pki/tls/${_KONG_SVC}"
 
 houseKeeping # temp files and payloads
 
-# Generate Kong PKI/TLS materials if they haven't been already...
+# Import Kong PKI/TLS materials in Vault
 if [[ (! -f ${_KONG_PEM}) || (! -f ${_KONG_SK}) ]]; then
-    echo ">> (3) Create PKI materials for Kong TLS server certificate"
-    /vault/pkisetup --config /vault/pkisetup-kong.json
-    chown vault:vault ${_CA_DIR}/${_KONG_SVC}.*
+    echo ">> (3) WARNING: Kong PKI/TLS materials not found in ${_CA_DIR}"
+    _WARNING="1" # set a warning for the import phase
 else
-    echo ">> (3) PKI materials for Kong TLS server certificate already created"
+    echo ">> (3) PKI materials for Kong TLS server certificate found"
     openssl x509 -noout -subject -in ${_KONG_PEM}
     openssl x509 -noout -issuer -in ${_KONG_PEM}
 fi
@@ -97,27 +93,32 @@ case ${result} in
     ;;
     # HTTP-STATUS: 404 -> Key not found
     "404")
-        echo ">> (6) Create the Kong JSON with TLS certificate and private key (base64 encoded)"
-        jq -n --arg cert "$(cat ${_KONG_PEM}|base64)" \
-            --arg sk "$(cat ${_KONG_SK}|base64)" \
-            '{cert:$cert,sk:$sk}' > ${_PAYLOAD_KONG}
-
-        echo ">> (7) Load the Kong JSON PKI materials in Vault"
-        curl -sw 'HTTP-STATUS: %{http_code}\n' ${_TLS} ${_REDIRECT} \
-            --header "X-Vault-Token: ${_ROOT_TOKEN}" \
-            --header "Content-Type: application/json" \
-            --request POST \
-            --data @${_PAYLOAD_KONG} \
-            ${_HTTP_SCHEME}://${_VAULT_SVC}:${_VAULT_PORT}${_VAULT_API_PATH_KONG} > ${_TMP}
-
-        # Check http status code returned by post request
-        result=$(tail -1 ${_TMP} | grep "HTTP-STATUS:" | cut -d' ' -f2)
-
-        if [[ ${result} == "204" ]]; then
-            echo "==> Key/Value successfully written in Vault, done!"
-        else
-            echo "==> Error while writing Key/Value in Vault!"
+        if [[ ${_WARNING} == "1" ]]; then
+            echo ">> (6) ERROR: Import not possible. Kong TLS certificate and private key not found in ${_CA_DIR}"
             _EXIT="1"
+        else
+            echo ">> (6) Create the Kong JSON with TLS certificate and private key (base64 encoded)"
+            jq -n --arg cert "$(cat ${_KONG_PEM}|base64)" \
+                --arg sk "$(cat ${_KONG_SK}|base64)" \
+                '{cert:$cert,sk:$sk}' > ${_PAYLOAD_KONG}
+
+            echo ">> (7) Load the Kong JSON PKI materials in Vault"
+            curl -sw 'HTTP-STATUS: %{http_code}\n' ${_TLS} ${_REDIRECT} \
+                --header "X-Vault-Token: ${_ROOT_TOKEN}" \
+                --header "Content-Type: application/json" \
+                --request POST \
+                --data @${_PAYLOAD_KONG} \
+                ${_HTTP_SCHEME}://${_VAULT_SVC}:${_VAULT_PORT}${_VAULT_API_PATH_KONG} > ${_TMP}
+
+            # Check http status code returned by post request
+            result=$(tail -1 ${_TMP} | grep "HTTP-STATUS:" | cut -d' ' -f2)
+
+            if [[ ${result} == "204" ]]; then
+                echo "==> Key/Value successfully written in Vault, done!"
+            else
+                echo "==> Error while writing Key/Value in Vault!"
+                _EXIT="1"
+            fi
         fi
     ;;
     *)
