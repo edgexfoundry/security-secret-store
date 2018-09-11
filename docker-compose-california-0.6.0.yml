@@ -23,7 +23,6 @@ volumes:
   consul-config:
   consul-data:
   vault-config:
-  vault-pki:
   vault-file:
   vault-logs:
 
@@ -93,7 +92,6 @@ services:
       - 'VAULT_UI=true'
     volumes:
       - vault-config:/vault/config
-      - vault-pki:/vault/pki
       - vault-file:/vault/file
       - vault-logs:/vault/logs
     depends_on:
@@ -104,13 +102,11 @@ services:
     image: edgexfoundry/docker-edgex-vault-worker:latest
     container_name: edgex-vault-worker
     hostname: edgex-vault-worker
+    command: ["--init=true", "--wait=180", "--insureskipverify=false"]
     networks:
       - edgex-network
-    environment:
-      - 'WATCHDOG_DELAY=3m'
     volumes:
-      - vault-pki:/vault/pki
-      - vault-file:/vault/file
+      - vault-config:/vault/config
     depends_on:
       - volume
       - consul

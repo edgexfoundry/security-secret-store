@@ -28,6 +28,7 @@ Server Options:
 	--insureskipverify=true/false			Indicates if skipping the server side SSL cert verifcation, similar to -k of curl
 	--init=true/false				Indicates if security service should be initialized	
 	--configfile=<file.toml>			Use a different config file (default: res/configuration.toml)
+	--wait=<time in seconds>		Indicates how long the program will pause between the vault initialization until it succeeds
 	Common Options:
 	-h, --help					Show this message
 `

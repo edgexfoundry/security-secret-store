@@ -20,6 +20,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 
 	"github.com/dghubble/sling"
@@ -84,7 +85,44 @@ func getCertKeyPair(config *tomlConfig, secretBaseURL string, c *http.Client) (s
 	defer resp.Body.Close()
 	collection := CertCollect{}
 	json.NewDecoder(resp.Body).Decode(&collection)
-	lc.Info(collection.Section.Cert)
-	lc.Info(fmt.Sprintf("successful on retrieving certificate from %s.", config.SecretService.CertPath))
+	lc.Info(fmt.Sprintf("successful on reading certificate from %s.", config.SecretService.CertPath))
+	lc.Info(fmt.Sprintf("cert:\n %s, key:\n %s", collection.Section.Cert, collection.Section.Key))
 	return collection.Section.Cert, collection.Section.Key, nil
+}
+
+func certKeyPairInStore(config *tomlConfig, secretBaseURL string, c *http.Client) (bool, error) {
+	cert, key, err := getCertKeyPair(config, secretBaseURL, c)
+	if err != nil {
+		return false, err
+	}
+	if len(cert) > 0 && len(key) > 0 {
+		return true, nil
+	}
+	return false, nil
+}
+
+func loadCACert(caPath string) (string, error) {
+	certPEMBlock, err := ioutil.ReadFile(caPath)
+	if err != nil {
+		return "", err
+	}
+	cert := string(certPEMBlock[:])
+
+	return cert, nil
+}
+
+func loadCerKeyPair(certPath string, keyPath string) (string, string, error) {
+	certPEMBlock, err := ioutil.ReadFile(certPath)
+	if err != nil {
+		return "", "", err
+	}
+	cert := string(certPEMBlock[:])
+
+	keyPEMBlock, err := ioutil.ReadFile(keyPath)
+	if err != nil {
+		return "", "", err
+	}
+	key := string(keyPEMBlock[:])
+
+	return cert, key, nil
 }
