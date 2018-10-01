@@ -29,7 +29,10 @@ type secretservice struct {
 	Server          string
 	Port            string
 	HealthcheckPath string
+	CAFilePath      string
 	CertPath        string
+	CertFilePath    string
+	KeyFilePath     string
 	TokenPath       string
 	SNIS            string
 }
