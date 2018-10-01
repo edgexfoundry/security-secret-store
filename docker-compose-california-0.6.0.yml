@@ -104,8 +104,6 @@ services:
     hostname: edgex-vault-worker
     networks:
       - edgex-network
-    environment:
-      - 'WATCHDOG_DELAY=1m'
     volumes:
       - vault-config:/vault/config
     depends_on:
