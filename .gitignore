@@ -1,1 +1,3 @@
 _exec_bash.sh
+pkisetup.src/pkisetup
+*.hcl
