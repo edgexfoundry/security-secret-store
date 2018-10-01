@@ -20,9 +20,12 @@
 title = "EdgeX security store service config file"
 
 [secretservice]
-server = "docker.for.win.localhost"
+server = "edgex-vault"
 port = "8200"
 healthcheckpath = "v1/sys/health"
 certpath = "v1/secret/edgex/pki/tls/edgex-kong"
-tokenpath = "/edgex/res/resp-init.json"
+cafilepath = "/vault/config/pki/EdgeXFoundryCA/EdgeXFoundryCA.pem"
+certfilepath = "/vault/config/pki/EdgeXFoundryCA/edgex-kong.pem"
+keyfilepath = "/vault/config/pki/EdgeXFoundryCA/edgex-kong.priv.key"
+tokenpath = "/vault/config/assets/resp-init.json"
 snis = "edgex.com"

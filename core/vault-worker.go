@@ -27,12 +27,7 @@ import (
 	"github.com/hashicorp/vault/api"
 )
 
-func initVault(c *api.Sys, path string) (string, error) {
-
-	inited, err := c.InitStatus()
-	if err != nil {
-		return "", err
-	}
+func initVault(c *api.Sys, path string, inited bool) (string, error) {
 
 	if inited == false {
 		ir := &api.InitRequest{
@@ -44,14 +39,22 @@ func initVault(c *api.Sys, path string) (string, error) {
 		r, _ := json.Marshal(resp)
 		ioutil.WriteFile(path, r, 0644)
 		lc.Info(string(r))
+		lc.Info("Vault has been initialized successfully.")
 
 		return resp.KeysB64[0], err
 	}
-	lc.Info("Vault has been initialized successfully.")
-	return "", nil
+	s, err := getSecret(path)
+	if err != nil {
+		return "", err
+	}
+	lc.Info("Vault has been initialized previously. Loading the access token for unsealling.")
+	return s.Token, nil
 }
 
 func unsealVault(c *api.Sys, token string) (bool, error) {
+	if len(token) == 0 {
+		return true, errors.New("error:empty token")
+	}
 	r, err := c.SealStatus()
 	if err != nil {
 		lc.Error(err.Error())
@@ -98,7 +101,7 @@ func uploadProxyCerts(config *tomlConfig, secretBaseURL string, cert string, sk 
 		lc.Error(err.Error())
 		return false, err
 	}
-	lc.Info("Trying to upload cert to secret store.")
+	lc.Info("Trying to upload cert&key to secret store.")
 	s := sling.New().Set(VaultToken, t.Token)
 	req, err := s.New().Base(secretBaseURL).Post(config.SecretService.CertPath).BodyJSON(body).Request()
 	resp, err := c.Do(req)
