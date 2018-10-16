@@ -110,10 +110,13 @@ func uploadProxyCerts(config *tomlConfig, secretBaseURL string, cert string, sk 
 		return false, err
 	}
 
+	defer resp.Body.Close()
+
 	if resp.StatusCode == 200 || resp.StatusCode == 204 {
 		lc.Info("Successful to add certificate to the secret store.")
 	} else {
-		s := fmt.Sprintf("Failed to add certificate to the secret store with errorcode %d.", resp.StatusCode)
+		b, _ := ioutil.ReadAll(resp.Body)
+		s := fmt.Sprintf("Failed to add certificate to the secret store with error %s,%s.", resp.Status, string(b))
 		lc.Error(s)
 		return false, errors.New(s)
 	}

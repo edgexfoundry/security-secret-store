@@ -30,7 +30,7 @@ func main() {
 	initNeeded := flag.Bool("init", false, "run init procedure for security service.")
 	insecureSkipVerify := flag.Bool("insureskipverify", true, "skip server side SSL verification, mainly for self-signed cert.")
 	configFileLocation := flag.String("configfile", "res/configuration.toml", "configuration file")
-	waitInterval := flag.Int("wait", 180, "time to wait between checking the vault status in seconds.")
+	waitInterval := flag.Int("wait", 30, "time to wait between checking the vault status in seconds.")
 
 	flag.Usage = HelpCallback
 	flag.Parse()
@@ -106,6 +106,7 @@ func main() {
 				lc.Error("Vault is still under sealed status. Will retry again.")
 			}
 		}
+		lc.Info(fmt.Sprintf("wait for %d seconds to retry checking the vault status.", *waitInterval))
 		time.Sleep(time.Second * time.Duration(*waitInterval))
 	}
 
@@ -127,5 +128,14 @@ func main() {
 		os.Exit(0)
 	}
 	lc.Info("Load cert&key pair from volume successfully, now will upload to secret store.")
-	uploadProxyCerts(config, secretServiceBaseURL, cert, sk, client)
+
+	for {
+		done, _ := uploadProxyCerts(config, secretServiceBaseURL, cert, sk, client)
+		if done == true {
+			os.Exit(0)
+		} else {
+			lc.Info(fmt.Sprintf("will retry uploading in %d seconds.", *waitInterval))
+		}
+		time.Sleep(time.Second * time.Duration(*waitInterval))
+	}
 }

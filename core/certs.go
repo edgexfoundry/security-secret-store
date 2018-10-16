@@ -12,7 +12,7 @@
  * the License.
  *
  * @author: Tingyu Zeng, Dell
- * @version: 0.1.0
+ * @version: 0.1.1
  *******************************************************************************/
 package main
 
@@ -85,8 +85,8 @@ func getCertKeyPair(config *tomlConfig, secretBaseURL string, c *http.Client) (s
 	defer resp.Body.Close()
 	collection := CertCollect{}
 	json.NewDecoder(resp.Body).Decode(&collection)
-	lc.Info(fmt.Sprintf("successful on reading certificate from %s.", config.SecretService.CertPath))
-	lc.Info(fmt.Sprintf("cert:\n %s, key:\n %s", collection.Section.Cert, collection.Section.Key))
+	lc.Info(fmt.Sprintf("Successful on reading certificate from %s.", config.SecretService.CertPath))
+	lc.Info(fmt.Sprintf("\n %s \n \n %s", collection.Section.Cert, collection.Section.Key))
 	return collection.Section.Cert, collection.Section.Key, nil
 }
 
