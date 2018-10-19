@@ -1,6 +1,6 @@
 #  SPDX-License-Identifier: Apache-2.0'
 
-.PHONY: build clean docker run
+.PHONY: prepare build clean docker run
 
 GO=CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go
 DOCKERS=docker_vault docker_vault_worker
@@ -11,6 +11,9 @@ VAULTWORKER=edgex-vault-worker
 VERSION=$(shell cat ./VERSION)
 GIT_SHA=$(shell git rev-parse HEAD)
 
+prepare:
+	glide install
+	
 clean:
 	cd core && rm -f $(VAULTWORKER)
 	cd pkisetup.src && rm -f $(PKISETUP)

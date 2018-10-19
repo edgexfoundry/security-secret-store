@@ -1,0 +1,13 @@
+package: security-secret-store
+import:
+- package: github.com/BurntSushi/toml
+  version: v0.3.0
+- package: github.com/dghubble/sling
+  version: v1.1.0
+- package: github.com/dgrijalva/jwt-go
+  version: v3.2.0
+- package: github.com/hashicorp/vault/api
+  version: v0.11.3  
+- package: github.com/edgexfoundry/edgex-go
+  subpackages:
+  - pkg/clients/logging

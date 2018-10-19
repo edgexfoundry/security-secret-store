@@ -1,3 +1,13 @@
 _exec_bash.sh
 pkisetup.src/pkisetup
 *.hcl
+.idea/
+.vscode/
+vendor
+glide.lock
+*.DS_Store
+
+# binary files
+core/*.log
+core/*.exe
+core/edgex-vault-worker
