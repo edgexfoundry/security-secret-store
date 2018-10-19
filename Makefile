@@ -19,6 +19,9 @@ build:
 	cd pkisetup.src && $(GO) build -a -ldflags="-s -w" -o $(PKISETUP) .
 	cd core && $(GO) build -a -o $(VAULTWORKER) .
 
+prepare:
+	glide install
+
 docker: $(DOCKERS)
 
 docker_vault: build
