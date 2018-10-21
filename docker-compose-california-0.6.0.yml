@@ -85,7 +85,7 @@ services:
       - "8200:8200"
     cap_add:
       - "IPC_LOCK"
-    command: "server"
+    command: "server -log-level=info"
     environment:
       - 'VAULT_ADDR=https://edgex-vault:8200'
       - 'VAULT_CONFIG_DIR=/vault/config'

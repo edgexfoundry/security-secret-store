@@ -16,10 +16,10 @@ prepare:
 	
 clean:
 	cd core && rm -f $(VAULTWORKER)
-	cd pkisetup.src && rm -f $(PKISETUP)
+	cd pkisetup && rm -f $(PKISETUP)
 
 build:
-	cd pkisetup.src && $(GO) build -a -ldflags="-s -w" -o $(PKISETUP) .
+	cd pkisetup && $(GO) build -a -ldflags="-s -w" -o $(PKISETUP) .
 	cd core && $(GO) build -a -o $(VAULTWORKER) .
 
 docker: $(DOCKERS)
