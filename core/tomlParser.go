@@ -26,17 +26,26 @@ type tomlConfig struct {
 }
 
 type secretservice struct {
-	Server          string
-	Port            string
-	HealthcheckPath string
-	CAFilePath      string
-	CertPath        string
-	CertFilePath    string
-	KeyFilePath     string
-	TokenPath       string
-	SNIS            string
+	Scheme           string
+	Server           string
+	Port             string
+	HealthcheckPath  string
+	CAFilePath       string
+	CertPath         string
+	CertFilePath     string
+	KeyFilePath      string
+	TokenPath        string
+	TokenFolderPath  string
+	PolicyPath4Admin string
+	PolicyName4Admin string
+	TokenName4Admin  string
+	PolicyPath4Kong  string
+	PolicyName4Kong  string
+	TokenName4Kong   string
+	SNIS             string
 }
 
+// LoadTomlConfig Loading the TOML configuration into structure
 func LoadTomlConfig(path string) (*tomlConfig, error) {
 	config := tomlConfig{}
 	_, err := toml.DecodeFile(path, &config)

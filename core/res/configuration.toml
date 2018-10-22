@@ -20,6 +20,7 @@
 title = "EdgeX security service config file"
 
 [secretservice]
+scheme = "https"
 server = "127.0.0.1"
 port = "8200"
 healthcheckpath = "v1/sys/health"
@@ -28,5 +29,12 @@ cafilepath = "/vault/config/pki/EdgeXFoundryCA/EdgeXFoundryCA.pem"
 certfilepath = "/vault/config/pki/EdgeXFoundryCA/edgex-vault.pem"
 keyfilepath = "/vault/config/pki/EdgeXFoundryCA/edgex-vault.priv.key"
 tokenpath = "res\\resp-init.json"
+tokenfolderpath = "/vault/config/assets"
+policypath4admin = "res/vault-policy-admin.hcl"
+policyname4admin = "admin"
+tokenname4admin = "admin"
+policypath4kong = "res/vault-policy-kong.hcl"
+policyname4kong = "kong"
+tokenname4kong = "kong"
 snis = "edgex.com"
 

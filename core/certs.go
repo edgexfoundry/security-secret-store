@@ -111,7 +111,7 @@ func loadCACert(caPath string) (string, error) {
 	return cert, nil
 }
 
-func loadCerKeyPair(certPath string, keyPath string) (string, string, error) {
+func loadCertKeyPair(certPath string, keyPath string) (string, string, error) {
 	certPEMBlock, err := ioutil.ReadFile(certPath)
 	if err != nil {
 		return "", "", err

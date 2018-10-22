@@ -1,6 +1,4 @@
 _exec_bash.sh
-pkisetup.src/pkisetup
-*.hcl
 .idea/
 .vscode/
 vendor
@@ -11,3 +9,4 @@ glide.lock
 core/*.log
 core/*.exe
 core/edgex-vault-worker
+pkisetup/pkisetup
