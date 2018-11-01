@@ -9,5 +9,6 @@ import:
 - package: github.com/hashicorp/vault/api
   version: v0.11.3  
 - package: github.com/edgexfoundry/edgex-go
+  version: delhi
   subpackages:
   - pkg/clients/logging

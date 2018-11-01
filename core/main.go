@@ -18,7 +18,7 @@ var lc = CreateLogging()
 
 // CreateLogging Logger functionality
 func CreateLogging() logger.LoggingClient {
-	return logger.NewClient(SecurityService, false, fmt.Sprintf("%s-%s.log", SecurityService, time.Now().Format("2006-01-02")))
+	return logger.NewClient(SecurityService, false, fmt.Sprintf("%s-%s.log", SecurityService, time.Now().Format("2006-01-02")), logger.InfoLog)
 }
 
 func main() {
