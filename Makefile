@@ -39,8 +39,8 @@ docker_vault_worker:
         --no-cache=true --rm=true \
 		-f Dockerfile.vault-worker \
 		--label "git_sha=$(GIT_SHA)" \
-		-t edgexfoundry/docker-edgex-vault-worker:$(GIT_SHA) \
-		-t edgexfoundry/docker-edgex-vault-worker:$(VERSION)-dev \
-		-t edgexfoundry/docker-edgex-vault-worker:latest \
+		-t edgexfoundry/docker-edgex-vault-worker-go:$(GIT_SHA) \
+		-t edgexfoundry/docker-edgex-vault-worker-go:$(VERSION)-dev \
+		-t edgexfoundry/docker-edgex-vault-worker-go:latest \
 		.
 
