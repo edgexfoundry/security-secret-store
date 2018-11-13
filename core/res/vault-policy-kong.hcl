@@ -4,7 +4,7 @@ path "secret/edgex/edgex-kong/*" {
 }
 
 # List/Read only for the TLS materials: private key and certificate
-path "secret/edgex/pki/tls/edgex-kong/*" {
+path "secret/edgex/pki/tls/edgex-kong" {
   capabilities = ["list", "read"]
 }
 
