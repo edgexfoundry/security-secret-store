@@ -12,13 +12,31 @@
  * the License.
  *
  * @author: Tingyu Zeng, Dell
- * @version: 0.1.0
+ * @version: 1.0.0
  *******************************************************************************/
 package main
 
+// Global constants
 const (
 	CertificatesPath = "certificates/"
 	SecurityService  = "securityservice"
 	EdgeXService     = "edgex"
 	VaultToken       = "X-Vault-Token"
+
+	// Vault API endpoints: v1
+	vaultHealthAPI      = "/v1/sys/health"
+	vaultInitAPI        = "/v1/sys/init"
+	vaultUnsealAPI      = "/v1/sys/unseal"
+	vaultPolicyAPI      = "/v1/sys/policy/"
+	vaultTokenCreateAPI = "/v1/auth/token/create"
+	vaultTokenDeleteAPI = "/v1/auth/token/delete"
+
+	vaultDefaultPolicy = "default"
+	vaultTokenTTL      = "168h"
+	// Vault Configuration defaults/limits: local.json
+	// If create token w/o ttl then the default will be default_lease_ttl="168h" (7 days)
+	// If specified the ttl cannot exceed max_lease_ttl="720h" (30 days)
+
+	tokenFileSuffix = "-token.json"      // When saving service tokens to filesystem
+	contentType     = "application/json" // Vault API requests
 )
