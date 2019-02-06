@@ -12,7 +12,7 @@
  * the License.
  *
  * @author: Tingyu Zeng, Dell
- * @version: 0.1.0
+ * @version: 0.2.2
  *******************************************************************************/
 
 package main
@@ -22,6 +22,7 @@ import (
 	"io/ioutil"
 )
 
+// Secret Root Token
 type Secret struct {
 	Token string `json:"root_token"`
 }
