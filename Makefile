@@ -2,7 +2,8 @@
 
 .PHONY: prepare build clean docker run
 
-GO=CGO_ENABLED=0 GOOS=linux go
+GO=CGO_ENABLED=0 GO111MODULE=on go
+GOCGO=CGO_ENABLED=1 GO111MODULE=on go
 DOCKERS=docker_vault docker_vault_worker
 PKISETUP=pkisetup
 VAULTWORKER=edgex-vault-worker
@@ -12,7 +13,6 @@ VERSION=$(shell cat ./VERSION)
 GIT_SHA=$(shell git rev-parse HEAD)
 
 prepare:
-	glide install
 	
 clean:
 	cd core && rm -f $(VAULTWORKER)

@@ -10,7 +10,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/edgexfoundry/edgex-go/pkg/clients/logging"
+	logger "github.com/edgexfoundry/go-mod-core-contracts/clients/logging"
 	"github.com/hashicorp/vault/api"
 )
 
