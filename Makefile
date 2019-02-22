@@ -2,8 +2,7 @@
 
 .PHONY: prepare build clean docker run
 
-GO=CGO_ENABLED=0 GO111MODULE=on go
-GOCGO=CGO_ENABLED=1 GO111MODULE=on go
+GO=CGO_ENABLED=0 GO111MODULE=on GOOS=linux go
 DOCKERS=docker_vault docker_vault_worker
 PKISETUP=pkisetup
 VAULTWORKER=edgex-vault-worker
