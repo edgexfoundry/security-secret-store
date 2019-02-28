@@ -1,28 +1,20 @@
 /*
-  @pkisetup keys.go
-  main.go		version 1.0   created July 27, 2018
+   Copyright 2018 ForgeRock AS.
 
-  Alain Pulluelo, VP Security & Mobile Innovation (alain.pulluelo@forgerock.com)
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
 
-  ForgeRock Office of the CTO
+       http://www.apache.org/licenses/LICENSE-2.0
 
-  201 Mission St, Suite 2900
-  San Francisco, CA 94105, USA
-  +1(415)-559-1100
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
 
-  Copyright (c) 2018, ForgeRock
-
-  Licensed under the Apache License, Version 2.0 (the "License");
-  you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
+  @author: Alain Pulluelo, ForgeRock (created: July 27, 2018)
+  @version: 1.0.0
 */
 
 package main

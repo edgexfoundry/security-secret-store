@@ -12,7 +12,7 @@
  * the License.
  *
  * @author: Tingyu Zeng, Dell
- * @version: 0.1.0
+ * @version: 1.0.0
  *******************************************************************************/
 package main
 
@@ -29,11 +29,12 @@ Server Options:
 	--init=true/false				Indicates if security service should be initialized	
 	--configfile=<file.toml>			Use a different config file (default: res/configuration.toml)
 	--wait=<time in seconds>		Indicates how long the program will pause between the vault initialization until it succeeds
+	--debug=true/false				Output sensitive debug informations for security service
 	Common Options:
 	-h, --help					Show this message
 `
 
-// 	Print out the flag options for the server.
+// HelpCallback	print out the flag options for the server
 func HelpCallback() {
 	msg := fmt.Sprintf(usageStr, os.Args[0])
 	fmt.Printf("%s\n", msg)

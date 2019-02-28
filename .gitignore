@@ -1,4 +1,7 @@
-_exec_bash.sh
+# Utility Shells
+_*.sh
+
+# OS and IDE specifics
 .idea/
 .vscode/
 vendor

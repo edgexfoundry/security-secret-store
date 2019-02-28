@@ -17,13 +17,17 @@ clean:
 	cd core && rm -f $(VAULTWORKER)
 	cd pkisetup && rm -f $(PKISETUP)
 
-build:
+build: build_pki build_worker
+
+build_pki:
 	cd pkisetup && $(GO) build -a -ldflags="-s -w" -o $(PKISETUP) .
+
+build_worker:
 	cd core && $(GO) build -a -o $(VAULTWORKER) .
 
 docker: $(DOCKERS)
 
-docker_vault: build
+docker_vault: build_pki
 	docker build \
         --no-cache=true --rm=true \
 		-f Dockerfile.vault \
@@ -33,7 +37,7 @@ docker_vault: build
 		-t edgexfoundry/docker-edgex-vault:latest \
 		.
 
-docker_vault_worker: 
+docker_vault_worker: build_worker
 	docker build \
         --no-cache=true --rm=true \
 		-f Dockerfile.vault-worker \

@@ -1,3 +1,22 @@
+/*
+   Copyright 2018 ForgeRock AS.
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+
+  @author: Alain Pulluelo, ForgeRock AS (created: July 27, 2018)
+  @version: 1.0.0
+*/
+
 package main
 
 import (
@@ -11,9 +30,9 @@ import (
 	"time"
 
 	logger "github.com/edgexfoundry/go-mod-core-contracts/clients/logging"
-	"github.com/hashicorp/vault/api"
 )
 
+var debug = false
 var lc = CreateLogging()
 
 // CreateLogging Logger functionality
@@ -23,19 +42,26 @@ func CreateLogging() logger.LoggingClient {
 
 func main() {
 
+	lc.Info("-------------------- Vault Worker Cycle ------------------------")
+
 	if len(os.Args) < 2 {
 		HelpCallback()
 	}
 
 	useConsul := flag.Bool("consul", false, "retrieve configuration from consul server")
 	initNeeded := flag.Bool("init", false, "run init procedure for security service.")
+	debugActive := flag.Bool("debug", false, "output sensitive debug informations for security service.")
 	insecureSkipVerify := flag.Bool("insureskipverify", true, "skip server side SSL verification, mainly for self-signed cert.")
 	configFileLocation := flag.String("configfile", "res/configuration.toml", "configuration file")
-	waitInterval := flag.Int("wait", 30, "time to wait between checking the vault status in seconds.")
+	waitInterval := flag.Int("wait", 30, "time to wait between checking Vault status in seconds.")
 
 	flag.Usage = HelpCallback
 	flag.Parse()
 
+	if *debugActive {
+		lc.Info("Debugging mode activated.")
+		debug = true
+	}
 	if *useConsul {
 		lc.Info("Retrieving config data from Consul...")
 	}
@@ -47,23 +73,25 @@ func main() {
 
 	config, err := LoadTomlConfig(*configFileLocation)
 	if err != nil {
-		lc.Error("Failed to retrieve config data from local file. Please make sure res/configuration.toml file exists with correct formats.")
+		lc.Error("Failed to retrieve config data from local file. Please make sure res/configuration.toml file exists with correct format.")
 		return
 	}
-	secretServiceBaseURL := fmt.Sprintf("https://%s:%s/", config.SecretService.Server, config.SecretService.Port)
 
+	// Prepare the HTTP Client to use with Vault REST API
+	// 1/2 Build Transport
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{
 			InsecureSkipVerify: *insecureSkipVerify,
 		},
 	}
+	// Add TLS support if requested
 	if *insecureSkipVerify == false {
 		caCert, err := ioutil.ReadFile(config.SecretService.CAFilePath)
 		if err != nil {
-			lc.Error("Failed to load rootCA cert.")
+			lc.Error("Failed to load rootCA certificate.")
 			os.Exit(0)
 		}
-		lc.Info("successful loading the rootCA cert.")
+		lc.Info("Successful loading the rootCA certificate.")
 		caCertPool := x509.NewCertPool()
 		caCertPool.AppendCertsFromPEM(caCert)
 
@@ -72,59 +100,70 @@ func main() {
 				RootCAs:            caCertPool,
 				InsecureSkipVerify: *insecureSkipVerify,
 			},
+			TLSHandshakeTimeout: 5 * time.Second,
 		}
 	}
 
-	client := &http.Client{Timeout: 10 * time.Second, Transport: tr}
+	// 2/2 Build HTTP Client
+	client := &http.Client{Transport: tr, Timeout: 10 * time.Second}
 
-	a, err := api.NewClient(&api.Config{
-		Address:    secretServiceBaseURL,
-		HttpClient: client,
-	})
-	s := a.Sys()
-	inited := false
-	sealed := true
+	// Loop duration interval between Vault init and unseal retries
+	intervalDuration := time.Duration(*waitInterval) * time.Second
+	// Loop exit condition
+	loopExit := false
 
 	for {
-		inited, err = s.InitStatus()
-		if err != nil {
-			lc.Error(fmt.Sprintf("Error while checking the initialization status: %s", err.Error()))
-		} else {
-			k, err := initVault(s, config.SecretService.TokenPath, inited)
-			if err != nil {
-				lc.Error(fmt.Sprintf("Error while initializing the vault with info: %s", err.Error()))
-			}
+		sCode, _ := vaultHealthCheck(config, client)
 
-			sealed, err = unsealVault(s, k)
-			if err != nil {
-				lc.Error(err.Error())
+		switch sCode {
+		case 200:
+			lc.Info(fmt.Sprintf("Vault is initialized and unsealed (Status Code: %d).", sCode))
+			loopExit = true
+		case 429:
+			lc.Error(fmt.Sprintf("Vault is unsealed and in standby mode (Status Code: %d).", sCode))
+			loopExit = true
+		case 501:
+			lc.Info(fmt.Sprintf("Vault is not initialized (Status Code: %d). Starting initialisation and unseal phases.", sCode))
+			_, err = vaultInit(config, client, debug)
+			if err == nil {
+				_, err = vaultUnseal(config, client, debug)
+				if err == nil {
+					loopExit = true
+				}
 			}
-
-			if sealed == false {
-				lc.Info("Vault has been unsealed successfully.")
-				break
+		case 503:
+			lc.Info(fmt.Sprintf("Vault is sealed (Status Code: %d). Starting unseal phase...", sCode))
+			_, err = vaultUnseal(config, client, debug)
+			if err == nil {
+				loopExit = true
+			}
+		default:
+			if sCode == 0 {
+				lc.Error(fmt.Sprintf("Vault is in an unknown state. No Status code available."))
 			} else {
-				lc.Error("Vault is still under sealed status. Will retry again.")
+				lc.Error(fmt.Sprintf("Vault is in an unknown state. Status code: %d", sCode))
 			}
 		}
-		lc.Info(fmt.Sprintf("waiting %d seconds to retry checking the vault status.", *waitInterval))
-		time.Sleep(time.Second * time.Duration(*waitInterval))
-	}
 
-	_, _ = vaultHealthCheck(config, client)
+		if loopExit {
+			break
+		}
+		lc.Info(fmt.Sprintf("Next Vault Init/Unseal attempt in %d seconds.", *waitInterval))
+		time.Sleep(intervalDuration)
+	}
 
 	// -----------------------------------------------------------------------------------
 	// Importing Admin and Kong Policies in Vault + create corresponding tokens
 	// -----------------------------------------------------------------------------------
 	// Get the Vault Root Token generated after Vault initialization
-	rootToken, err := getSecret(config.SecretService.TokenPath)
+	rootToken, err := getSecret(config.SecretService.TokenFolderPath + "/" + config.SecretService.VaultInitParm)
 	if err != nil {
 		lc.Error("Fatal Error fetching Vault root token.")
 		fatalIfErr(err, "Root token fetch failure")
 	}
 
 	/*
-		Wait 5" till Vault has completed the post unseal cluster/node/backend tasks,
+		Till Vault has completed the post unseal cluster/node/backend tasks,
 		otherwise the REST API request returns a HTTP Status 500...
 
 		edgex-vault-worker | INFO: 2018/10/20 10:52:55 Vault has been initialized successfully.
@@ -135,11 +174,21 @@ func main() {
 		edgex-vault-worker | ERROR: 2018/10/20 10:52:55 Import Policy HTTP Status: 500 Internal Server Error (StatusCode: 500)
 		edgex-vault-worker | ERROR: 2018/10/20 10:52:55 Fatal Error importing Admin policy in Vault.
 	*/
-	time.Sleep(5 * time.Second)
+	for {
+		if sCode, _ := vaultHealthCheck(config, client); sCode == 200 { // Healthcheck output (code 200 is OK status)
+			break
+		}
+	}
 
+	// ------------------ Admin Vault Policies and associated token ----------------------
 	// Read the Admin HCL config file and build the policy request
-	lc.Info("Reading Admin policy file.")
+	lc.Info("Verifying Admin policy file hash (SHA256).")
 	policyFile := config.SecretService.PolicyPath4Admin
+	_, err = hashFile(&policyFile, debug)
+	if err != nil {
+		fatalIfErr(err, "Calculating policy file hash (SHA256)")
+	}
+	lc.Info("Reading Admin policy file.")
 	policyRequest, err := getPolicyFromFile(&policyFile)
 	if err != nil {
 		lc.Error("Fatal Error opening Admin policy file.")
@@ -154,7 +203,22 @@ func main() {
 		fatalIfErr(err, "Import policy failure")
 	}
 
+	// Create Admin token associated with admin policy in Vault
+	lc.Info("Creating Vault Admin token.")
+	err = createToken(config.SecretService.TokenName4Admin, config.SecretService.PolicyName4Admin, rootToken.Token, config, client)
+	if err != nil {
+		lc.Error("Fatal Error creating Admin token in Vault.")
+		fatalIfErr(err, "Create token failure (Admin)")
+	}
+
+	// ------------------ Kong Vault Policies and associated token ----------------------
 	// Read the Kong HCL file and build the policy request
+	lc.Info("Verifying Kong policy file hash (SHA256).")
+	policyFile = config.SecretService.PolicyPath4Kong
+	_, err = hashFile(&policyFile, debug)
+	if err != nil {
+		fatalIfErr(err, "Calculating policy file hash (SHA256)")
+	}
 	lc.Info("Reading Kong policy file.")
 	policyFile = config.SecretService.PolicyPath4Kong
 	policyRequest, err = getPolicyFromFile(&policyFile)
@@ -171,14 +235,6 @@ func main() {
 		fatalIfErr(err, "Import policy failure")
 	}
 
-	// Create Admin token associated with admin policy in Vault
-	lc.Info("Creating Vault Admin token.")
-	err = createToken(config.SecretService.TokenName4Admin, config.SecretService.PolicyName4Admin, rootToken.Token, config, client)
-	if err != nil {
-		lc.Error("Fatal Error creating Admin token in Vault.")
-		fatalIfErr(err, "Create token failure (Admin)")
-	}
-
 	// Create Kong token associated with kong policy in Vault
 	lc.Info("Creating Vault Kong token.")
 	err = createToken(config.SecretService.TokenName4Kong, config.SecretService.PolicyName4Kong, rootToken.Token, config, client)
@@ -188,32 +244,35 @@ func main() {
 	}
 	// -----------------------------------------------------------------------------------
 
-	hasCertKeyPair, err := certKeyPairInStore(config, secretServiceBaseURL, client)
+	secretServiceBaseURL := fmt.Sprintf("https://%s:%s/", config.SecretService.Server, config.SecretService.Port)
+
+	hasCertKeyPair, err := certKeyPairInStore(config, secretServiceBaseURL, client, debug)
 	if err != nil {
-		lc.Error(fmt.Sprintf("Failed to check if the cert&key pair is in secret store with error %s.", err.Error()))
-		os.Exit(0)
+		lc.Error(fmt.Sprintf("Failed to check if the API Gateway TLS certificate and key are in the secret store: %s", err.Error()))
+		os.Exit(1)
 	}
 
 	if hasCertKeyPair == true {
-		lc.Info("Cert&key pair is already in secret store, skip uploading cert step.")
+		lc.Info("API Gateway TLS certificate and key already in the secret store, skip uploading phase.")
 		os.Exit(0)
 	}
-	lc.Info("Cert&key are not in the secret store yet, will need to upload them.")
+	lc.Info("API Gateway TLS certificate and key are not in the secret store yet, uploading them.")
 
 	cert, sk, err := loadCertKeyPair(config.SecretService.CertFilePath, config.SecretService.KeyFilePath)
 	if err != nil {
-		lc.Error(fmt.Sprintf("Failed to load cert&key pair from volume with path of cert - %s, key - %s.", config.SecretService.CertFilePath, config.SecretService.KeyFilePath))
-		os.Exit(0)
+		lc.Error("Failed to load API Gateway TLS certificate and key from volume:")
+		lc.Error(fmt.Sprintf("--> Certificate path: %s", config.SecretService.CertFilePath))
+		lc.Error(fmt.Sprintf("--> Private Key path: %s.", config.SecretService.KeyFilePath))
+		os.Exit(1)
 	}
-	lc.Info("Load cert&key pair from volume successfully, now will upload to secret store.")
+	lc.Info("API Gateway TLS certificate and key successfully loaded from volume, now will upload to secret store.")
 
 	for {
 		done, _ := uploadProxyCerts(config, secretServiceBaseURL, cert, sk, client)
 		if done == true {
-			// Entropy
 			os.Exit(0)
 		} else {
-			lc.Info(fmt.Sprintf("will retry uploading in %d seconds.", *waitInterval))
+			lc.Info(fmt.Sprintf("Will retry uploading in %d seconds.", *waitInterval))
 		}
 		time.Sleep(time.Second * time.Duration(*waitInterval))
 	}
