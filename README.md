@@ -3,5 +3,6 @@
 
 ## Introduction
 
-This is an implemention of secret store to keep secres for EdgeX project. It is being used by security-api-gateway currently to retrieve the certificate.
-Please refer to the README of security-api-gateway for the usage.
+This is an implemention of the Secret Store to keep secrets, keys, certificates and other sensitive assets for the EdgeX Foundry project. One example of a currently implemented use case is the Security API Gateway, to handle various PKI assets related to TLS certificates.
+Please refer to [Security Secret Store Chapter](https://docs.edgexfoundry.org/Ch-SecretStore.html) for a detailed documentation.
+Please refer to the README of the [Security API Gateway](https://github.com/edgexfoundry/security-api-gateway) service for supplemetal informations.
