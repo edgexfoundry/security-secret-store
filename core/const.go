@@ -33,7 +33,7 @@ const (
 
 	vaultDefaultPolicy = "default"
 	vaultTokenTTL      = "168h"
-	// Vault Configuration defaults/limits: local.json
+	// Vault Configuration defaults/limits: local.hcl
 	// If create token w/o ttl then the default will be default_lease_ttl="168h" (7 days)
 	// If specified the ttl cannot exceed max_lease_ttl="720h" (30 days)
 
