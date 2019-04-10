@@ -27,7 +27,7 @@ USER root
 
 # Vault Config File
 WORKDIR /vault/config
-COPY local-tls.json ./local.json
+COPY local-tls.hcl ./local.hcl
 
 WORKDIR /vault
 # Vault PKI/TLS setup/config binary
@@ -41,7 +41,7 @@ COPY pkisetup/pkisetup-kong.json .
 # Run CA/Vault and Kong PKI/TLS setups and peform housekeeping tasks
 RUN mkdir /vault/config/assets && \
     chown -R vault:vault /vault && \
-    chmod 644 /vault/config/local.json && \
+    chmod 644 /vault/config/local.hcl && \
     chmod 744 pkisetup* && \
     ./pkisetup --config pkisetup-vault.json && \
     echo "" && \
