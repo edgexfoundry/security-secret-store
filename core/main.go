@@ -248,6 +248,18 @@ func main() {
 
 	secretServiceBaseURL := fmt.Sprintf("https://%s:%s/", config.SecretService.Server, config.SecretService.Port)
 
+	hasMongoCredentails, err := credentialInStore(config, secretServiceBaseURL, config.SecretService.MongodbinitSecretPath, client)
+	if err != nil {
+		lc.Error(fmt.Sprintf("Failed to check if the MongoDB initlization parameters are in the secret store: %s", err.Error()))
+		os.Exit(1)
+	}
+
+	if hasMongoCredentails == true {
+		lc.Info("MongoDB initialization parameters are in the secret store already. Skip creating the credentials.")
+	} else {
+		initMongoDBCredentials(config, secretServiceBaseURL, client)
+	}
+
 	hasCertKeyPair, err := certKeyPairInStore(config, secretServiceBaseURL, client, debug)
 	if err != nil {
 		lc.Error(fmt.Sprintf("Failed to check if the API Gateway TLS certificate and key are in the secret store: %s", err.Error()))

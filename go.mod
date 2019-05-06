@@ -7,4 +7,5 @@ require (
 	github.com/go-stack/stack v1.8.0 // indirect
 	github.com/google/go-querystring v1.0.0 // indirect
 	github.com/google/uuid v1.1.1 // indirect
+	github.com/sethvargo/go-password v0.1.2
 )
