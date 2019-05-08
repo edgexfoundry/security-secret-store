@@ -67,6 +67,8 @@ func credentialInStore(config *tomlConfig, secretBaseURL string, credPath string
 		return false, nil
 	}
 
+	lc.Info(fmt.Sprintf("%s - %d", credPath, resp.StatusCode))
+
 	var result map[string]interface{}
 
 	by, _ := ioutil.ReadAll(resp.Body)
@@ -125,6 +127,8 @@ func initMongoDBCredentials(config *tomlConfig, secretBaseURL string, c *http.Cl
 	}
 
 	defer resp.Body.Close()
+
+	lc.Info(fmt.Sprintf("%s - %d", config.SecretService.MongodbinitSecretPath, resp.StatusCode))
 
 	if resp.StatusCode == 200 || resp.StatusCode == 201 || resp.StatusCode == 409 {
 		lc.Info("Successful to add mongoDBinit credentials to secret service.")
