@@ -177,7 +177,7 @@ func importPolicy(policyName string, policyRequest *[]byte, rootToken string, co
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode == 204 {
+	if resp.StatusCode == http.StatusNoContent {
 		lc.Info("Import Policy Successful.")
 	} else {
 		lc.Error(fmt.Sprintf("Import Policy HTTP Status: %s (StatusCode: %s)", resp.Status, strconv.Itoa(resp.StatusCode)))
@@ -228,7 +228,7 @@ func createToken(tokenName string, policyName string, rootToken string, config *
 		fatalIfErr(err, "Read Body failure")
 	}
 
-	if resp.StatusCode == 200 {
+	if resp.StatusCode == http.StatusOK {
 		lc.Info("Create Token Successful.")
 	} else {
 		lc.Error(fmt.Sprintf("Fatal Error Creating Token in Vault, HTTP Status: %s", resp.Status))

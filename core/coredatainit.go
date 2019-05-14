@@ -64,7 +64,7 @@ func initCoredataCredentials(config *tomlConfig, secretBaseURL string, c *http.C
 
 	lc.Info(fmt.Sprintf("%s - %d", config.SecretService.CoredataSecretPath, resp.StatusCode))
 
-	if resp.StatusCode == 200 || resp.StatusCode == 201 || resp.StatusCode == 409 {
+	if resp.StatusCode == http.StatusOK || resp.StatusCode == http.StatusCreated || resp.StatusCode == http.StatusConflict {
 		lc.Info("Successful to add Coredata initial credentials to secret service.")
 	} else {
 		s := fmt.Sprintf("Failed to add Coredata initial credentials with errorcode %d.", resp.StatusCode)

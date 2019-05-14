@@ -113,7 +113,7 @@ func vaultInit(config *tomlConfig, httpClient *http.Client, debug bool) (sCode i
 	defer resp.Body.Close()
 
 	// Init request OK/KO ?
-	if resp.StatusCode != 200 {
+	if resp.StatusCode != http.StatusOK {
 		lc.Error(fmt.Sprintf("Vault init request failed with status code: %s", resp.Status))
 		return resp.StatusCode, err
 	}
@@ -203,7 +203,7 @@ func vaultUnseal(config *tomlConfig, httpClient *http.Client, debug bool) (sCode
 		defer resp.Body.Close()
 
 		// Unseal request OK/KO ?
-		if resp.StatusCode != 200 {
+		if resp.StatusCode != http.StatusOK {
 			lc.Error(fmt.Sprintf("Vault unseal request failed with status code: %s", resp.Status))
 			return resp.StatusCode, err
 		}
@@ -267,7 +267,7 @@ func uploadProxyCerts(config *tomlConfig, secretBaseURL string, cert string, sk 
 
 	defer resp.Body.Close()
 
-	if resp.StatusCode == 200 || resp.StatusCode == 204 {
+	if resp.StatusCode == http.StatusOK || resp.StatusCode == http.StatusCreated {
 		lc.Info("API Gateway TLS certificate and key successfully loaded in the secret store.")
 	} else {
 		b, _ := ioutil.ReadAll(resp.Body)

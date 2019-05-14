@@ -64,7 +64,7 @@ func loadKongCerts(config *tomlConfig, url string, secretBaseURL string, c *http
 		return err
 	}
 
-	if resp.StatusCode == 200 || resp.StatusCode == 201 || resp.StatusCode == 409 {
+	if resp.StatusCode == http.StatusOK || resp.StatusCode == http.StatusCreated || resp.StatusCode == http.StatusConflict {
 		lc.Info("Successful to add certificate to the reverse proxy.")
 	} else {
 		s := fmt.Sprintf("Failed to add certificate with errorcode %d.", resp.StatusCode)
@@ -94,13 +94,13 @@ func getCertKeyPair(config *tomlConfig, secretBaseURL string, c *http.Client, de
 	json.NewDecoder(resp.Body).Decode(&collector)
 
 	switch resp.StatusCode {
-	case 200:
+	case http.StatusOK:
 		lc.Info(fmt.Sprintf("API Gateway TLS certificate/key found in Secret Store @/%s (%s)", config.SecretService.CertPath, resp.Status))
 		if debug {
 			lc.Info(fmt.Sprintf("\n %s \n \n %s", collector.Section.Cert, collector.Section.Key))
 		}
 
-	case 404:
+	case http.StatusNotFound:
 		lc.Info(fmt.Sprintf("API Gateway TLS certificate/key NOT found in Secret Store @/%s (%s)", config.SecretService.CertPath, resp.Status))
 
 	default:

@@ -130,7 +130,7 @@ func initMongoDBCredentials(config *tomlConfig, secretBaseURL string, c *http.Cl
 
 	lc.Info(fmt.Sprintf("%s - %d", config.SecretService.MongodbinitSecretPath, resp.StatusCode))
 
-	if resp.StatusCode == 200 || resp.StatusCode == 201 || resp.StatusCode == 409 {
+	if resp.StatusCode == http.StatusOK || resp.StatusCode == http.StatusCreated || resp.StatusCode == http.StatusConflict {
 		lc.Info("Successful to add mongoDBinit credentials to secret service.")
 	} else {
 		s := fmt.Sprintf("Failed to add mongoDBinit credentials with errorcode %d.", resp.StatusCode)
