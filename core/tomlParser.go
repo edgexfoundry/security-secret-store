@@ -30,8 +30,7 @@ type secretservice struct {
 	Server                string
 	Port                  string
 	CAFilePath            string
-	MongodbinitSecretPath string
-	CoredataSecretPath    string
+	MongodbinitSecretPath string	
 	CertPath              string
 	CertFilePath          string
 	KeyFilePath           string

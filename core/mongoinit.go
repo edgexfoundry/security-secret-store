@@ -85,29 +85,30 @@ func credentialInStore(config *tomlConfig, secretBaseURL string, credPath string
 
 func initMongoDBCredentials(config *tomlConfig, secretBaseURL string, c *http.Client) error {
 
+	//TODO: we only covert coredata credential for this release, the rest needs to be implemented later.
 	adminpasswd, _ := createCredential()
-	metadatapasswd, _ := createCredential()
+	//metadatapasswd, _ := createCredential()
 	coreadatapasswd, _ := createCredential()
-	rulesenginepasswd, _ := createCredential()
-	notificationspasswd, _ := createCredential()
-	schedulerpasswd, _ := createCredential()
-	loggingpasswd, _ := createCredential()
+	//rulesenginepasswd, _ := createCredential()
+	//notificationspasswd, _ := createCredential()
+	//schedulerpasswd, _ := createCredential()
+	//loggingpasswd, _ := createCredential()
 
 	body := &MongoCredentials{
 		AdminUser:           "admin",
 		AdminPasswd:         adminpasswd,
-		MetadataUser:        "metadata",
-		MetadataPasswd:      metadatapasswd,
-		CoredataUser:        "coredata",
+		MetadataUser:        "meta",
+		MetadataPasswd:      "password",
+		CoredataUser:        "core",
 		CoredataPasswd:      coreadatapasswd,
 		RulesengineUser:     "rules_engine_user",
-		RulesenginePasswd:   rulesenginepasswd,
+		RulesenginePasswd:   "password",
 		NotificationsUser:   "notifications",
-		NotificationsPasswd: notificationspasswd,
+		NotificationsPasswd: "password",
 		SchedulerUser:       "scheduler",
-		SchedulerPasswd:     schedulerpasswd,
+		SchedulerPasswd:     "password",
 		LoggingUser:         "logging",
-		LoggingPasswd:       loggingpasswd,
+		LoggingPasswd:       "password",
 	}
 
 	t, err := getSecret(config.SecretService.TokenFolderPath + "/" + config.SecretService.VaultInitParm)

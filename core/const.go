@@ -24,7 +24,7 @@ const (
 	VaultToken       = "X-Vault-Token"
 
 	// Edgex Microservices
-	Coredata = "coredata"
+	Coredata = "core"
 
 	// Vault API endpoints: v1
 	vaultHealthAPI      = "/v1/sys/health"

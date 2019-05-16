@@ -258,20 +258,7 @@ func main() {
 		lc.Info("MongoDB initialization parameters are in the secret store already. Skip creating the credentials.")
 	} else {
 		initMongoDBCredentials(config, secretServiceBaseURL, client)
-	}
-
-	hasCoredataCredentials, err := coredataCredentialInStore(config, secretServiceBaseURL, config.SecretService.CoredataSecretPath, client)
-
-	if err != nil {
-		lc.Error(fmt.Sprintf("Failed to check if the Coredata initlization parameters are in the secret store: %s", err.Error()))
-		os.Exit(1)
-	}
-
-	if hasCoredataCredentials == true {
-		lc.Info("Coredata initialization parameters are in the secret store already. Skip creating the credentials.")
-	} else {
-		initCoredataCredentials(config, secretServiceBaseURL, client)
-	}
+	}	
 
 	hasCertKeyPair, err := certKeyPairInStore(config, secretServiceBaseURL, client, debug)
 	if err != nil {
