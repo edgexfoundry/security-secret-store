@@ -77,7 +77,7 @@ services:
       - consul
 
   vault:
-    image: edgexfoundry/docker-edgex-vault:1.0.0-dev
+    image: edgexfoundry/docker-edgex-vault:1.0.0
     container_name: edgex-vault
     hostname: edgex-vault
     networks:
@@ -100,7 +100,7 @@ services:
       - consul
 
   vault-worker:
-    image: edgexfoundry/docker-edgex-vault-worker-go:1.0.0-dev
+    image: edgexfoundry/docker-edgex-vault-worker-go:1.0.0
     container_name: edgex-vault-worker
     hostname: edgex-vault-worker
     command: ["--init=true", "--debug=false", "--wait=10", "--insureskipverify=false"]
