@@ -14,10 +14,11 @@
    limitations under the License.
 
   @author: Alain Pulluelo, ForgeRock (created: July 27, 2018)
+  @author: Tingyu Zeng, DELL (updated: May 21, 2019)
   @version: 1.0.0
 */
 
-package main
+package pkisetup
 
 import (
 	"crypto"
@@ -33,55 +34,53 @@ import (
 	"time"
 )
 
-// genCA creates a new CA certificate, saves it to PEM file
-// and returns the x509 certificate and crypto private key
-// ----------------------------------------------------------
-func genCA() (*x509.Certificate, crypto.PrivateKey, error) {
+//GenCA creates a new CA certificate, saves it to PEM file and returns the x509 certificate and crypto private key.*/
+func GenCA(cf *CertConfig) (*x509.Certificate, crypto.PrivateKey, error) {
 
 	log.Println("")
 	log.Println("<Phase 1> Generating CA PKI materials")
 	log.Println("Generating Root CA key pair (sk,pk)")
 
 	// Generate RSA or EC based SK
-	caSK, err := genSK()
+	caSK, err := genSK(cf)
 	if err != nil {
 		return nil, nil, err
 	}
 	// Extract PK from RSA or EC generated SK
 	caPK := caSK.(crypto.Signer).Public()
 	// Debug the key pair generation/extraction
-	if dumpKeys {
+	if cf.dumpKeys {
 		dumpKeyPair(caSK, caPK)
 	}
 
 	serialNumberLimit := new(big.Int).Lsh(big.NewInt(1), 128)
 	serialNumber, err := rand.Int(rand.Reader, serialNumberLimit)
-	fatalIfErr(err, "failed to generate serial number")
+	FatalIfErr(err, "failed to generate serial number")
 
 	spkiASN1, err := x509.MarshalPKIXPublicKey(caPK)
-	fatalIfErr(err, "failed to encode public key")
+	FatalIfErr(err, "failed to encode public key")
 
 	var spki struct {
 		Algorithm        pkix.AlgorithmIdentifier
 		SubjectPublicKey asn1.BitString
 	}
 	_, err = asn1.Unmarshal(spkiASN1, &spki)
-	fatalIfErr(err, "failed to decode public key")
+	FatalIfErr(err, "failed to decode public key")
 
 	skid := sha1.Sum(spki.SubjectPublicKey.Bytes)
 
 	caCertTemplate := &x509.Certificate{
 		SerialNumber: serialNumber,
 		Subject: pkix.Name{
-			CommonName:         caName,
-			Organization:       []string{caName},
-			OrganizationalUnit: []string{caOrg},
-			Locality:           []string{caLocality},
-			Province:           []string{caState},
-			Country:            []string{caCountry},
+			CommonName:         cf.caName,
+			Organization:       []string{cf.caName},
+			OrganizationalUnit: []string{cf.caOrg},
+			Locality:           []string{cf.caLocality},
+			Province:           []string{cf.caState},
+			Country:            []string{cf.caCountry},
 		},
 
-		EmailAddresses: []string{caName + "@" + tlsDomain},
+		EmailAddresses: []string{cf.caName + "@" + cf.tlsDomain},
 
 		SubjectKeyId: skid[:],
 
@@ -97,39 +96,37 @@ func genCA() (*x509.Certificate, crypto.PrivateKey, error) {
 
 	log.Printf("Generating Root CA certificate")
 	caDER, err := x509.CreateCertificate(rand.Reader, caCertTemplate, caCertTemplate, caPK, caSK)
-	fatalIfErr(err, "failed to generate CA certificate (DER)")
+	FatalIfErr(err, "failed to generate CA certificate (DER)")
 
 	caCert, err := x509.ParseCertificate(caDER)
-	fatalIfErr(err, "failed to parse Root CA certificate")
+	FatalIfErr(err, "failed to parse Root CA certificate")
 
-	log.Printf("Saving Root CA private key to PEM file: %s", caKeyFile)
+	log.Printf("Saving Root CA private key to PEM file: %s", cf.caKeyFile)
 	skPKCS8, err := x509.MarshalPKCS8PrivateKey(caSK)
-	fatalIfErr(err, "failed to encode CA private key")
+	FatalIfErr(err, "failed to encode CA private key")
 
-	err = ioutil.WriteFile(caKeyFile, pem.EncodeToMemory(&pem.Block{Type: "PRIVATE KEY", Bytes: skPKCS8}), 0400)
-	fatalIfErr(err, "failed to save CA private key")
+	err = ioutil.WriteFile(cf.caKeyFile, pem.EncodeToMemory(&pem.Block{Type: "PRIVATE KEY", Bytes: skPKCS8}), 0400)
+	FatalIfErr(err, "failed to save CA private key")
 
-	log.Printf("Saving Root CA certificate to PEM file: %s", caCertFile)
-	err = ioutil.WriteFile(caCertFile, pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: caDER}), 0644)
-	fatalIfErr(err, "failed to save CA certificate")
+	log.Printf("Saving Root CA certificate to PEM file: %s", cf.caCertFile)
+	err = ioutil.WriteFile(cf.caCertFile, pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: caDER}), 0644)
+	FatalIfErr(err, "failed to save CA certificate")
 
 	log.Printf("New local Root CA successfully created!")
 
 	return caCert, caSK, nil
 }
 
-// genCert creates a new TLS server certificate, saves it to
-// PEM file and returns the x509 certificate and crypto private key.
-// ----------------------------------------------------------
-func genCert() (*x509.Certificate, crypto.PrivateKey, error) {
+/*GenCert creates a new TLS server certificate, saves it to PEM file and returns the x509 certificate and crypto private key. */
+func GenCert(cf *CertConfig) (*x509.Certificate, crypto.PrivateKey, error) {
 
 	log.Println("")
 	log.Println("<Phase 2> Generating TLS server PKI materials")
 
 	// Root CA certificate fetch --------------------------------------------------------
-	log.Printf("Loading Root CA certificate: %s", caCertFile)
-	certPEMBlock, err := ioutil.ReadFile(caCertFile) // Load Root CA certificate
-	fatalIfErr(err, "failed to read the Root CA certificate")
+	log.Printf("Loading Root CA certificate: %s", cf.caCertFile)
+	certPEMBlock, err := ioutil.ReadFile(cf.caCertFile) // Load Root CA certificate
+	FatalIfErr(err, "failed to read the Root CA certificate")
 
 	log.Println("- Decoding the Root CA certificate")
 	certDERBlock, _ := pem.Decode(certPEMBlock) // Decode Root CA certificate
@@ -139,12 +136,12 @@ func genCert() (*x509.Certificate, crypto.PrivateKey, error) {
 
 	log.Println("- Parsing the Root CA certificate")
 	caCert, err := x509.ParseCertificate(certDERBlock.Bytes) // Parse Root CA certificate
-	fatalIfErr(err, "failed to parse the Root CA certificate")
+	FatalIfErr(err, "failed to parse the Root CA certificate")
 
 	// Root CA private key fetch --------------------------------------------------------
-	log.Printf("Loading the Root CA private key: %s", caKeyFile)
-	keyPEMBlock, err := ioutil.ReadFile(caKeyFile)
-	fatalIfErr(err, "failed to read the Root CA private key")
+	log.Printf("Loading the Root CA private key: %s", cf.caKeyFile)
+	keyPEMBlock, err := ioutil.ReadFile(cf.caKeyFile)
+	FatalIfErr(err, "failed to read the Root CA private key")
 
 	log.Println("- Decoding the Root CA private key")
 	keyDERBlock, _ := pem.Decode(keyPEMBlock) // Decode Root CA private key
@@ -154,40 +151,40 @@ func genCert() (*x509.Certificate, crypto.PrivateKey, error) {
 
 	log.Println("- Parsing the Root CA private key")
 	caSK, err := x509.ParsePKCS8PrivateKey(keyDERBlock.Bytes) // Parse Root CA private key
-	fatalIfErr(err, "failed to parse the Root CA key")
+	FatalIfErr(err, "failed to parse the Root CA key")
 
 	// TLS server certificate preparation -----------------------------------------------
 	log.Println("Generating TLS server key pair (sk,pk)")
 
 	// Generate RSA or EC based SK
-	tlsSK, err := genSK()
+	tlsSK, err := genSK(cf)
 	if err != nil {
 		return nil, nil, err
 	}
 	// Extract PK from RSA or EC generated SK
 	tlsPK := tlsSK.(crypto.Signer).Public()
 	// Debug the key pair generation/extraction
-	if dumpKeys {
+	if cf.dumpKeys {
 		dumpKeyPair(tlsSK, tlsPK)
 	}
 
 	serialNumberLimit := new(big.Int).Lsh(big.NewInt(1), 128)
 	serialNumber, err := rand.Int(rand.Reader, serialNumberLimit)
-	fatalIfErr(err, "failed to generate serial number")
+	FatalIfErr(err, "failed to generate serial number")
 
 	tlsCertTemplate := &x509.Certificate{
 		SerialNumber: serialNumber,
 		Subject: pkix.Name{
-			CommonName:         tlsFQDN,
-			Organization:       []string{tlsHost},
-			OrganizationalUnit: []string{tlsOrg},
-			Locality:           []string{tlsLocality},
-			Province:           []string{tlsState},
-			Country:            []string{tlsCountry},
+			CommonName:         cf.tlsFQDN,
+			Organization:       []string{cf.tlsHost},
+			OrganizationalUnit: []string{cf.tlsOrg},
+			Locality:           []string{cf.tlsLocality},
+			Province:           []string{cf.tlsState},
+			Country:            []string{cf.tlsCountry},
 		},
 
-		EmailAddresses: []string{"admin@" + tlsDomain},
-		DNSNames:       []string{tlsFQDN, tlsAltFQDN}, // Alternative Names
+		EmailAddresses: []string{"admin@" + cf.tlsDomain},
+		DNSNames:       []string{cf.tlsFQDN, cf.tlsAltFQDN}, // Alternative Names
 
 		NotAfter:  time.Now().AddDate(10, 0, 0),
 		NotBefore: time.Now(),
@@ -200,21 +197,21 @@ func genCert() (*x509.Certificate, crypto.PrivateKey, error) {
 
 	log.Printf("Generating TLS server certificate (Self-signed with our local Root CA)")
 	tlsDER, err := x509.CreateCertificate(rand.Reader, tlsCertTemplate, caCert, tlsPK, caSK)
-	fatalIfErr(err, "failed to generate TLS server certificate - DER")
+	FatalIfErr(err, "failed to generate TLS server certificate - DER")
 
 	tlsCert, err := x509.ParseCertificate(tlsDER)
-	fatalIfErr(err, "failed to parse TLS server certificate")
+	FatalIfErr(err, "failed to parse TLS server certificate")
 
-	log.Printf("Saving TLS server private key to PEM file: %s", tlsKeyFile)
+	log.Printf("Saving TLS server private key to PEM file: %s", cf.tlsKeyFile)
 	skPKCS8, err := x509.MarshalPKCS8PrivateKey(tlsSK)
-	fatalIfErr(err, "failed to encode TLS server key")
+	FatalIfErr(err, "failed to encode TLS server key")
 
-	err = ioutil.WriteFile(tlsKeyFile, pem.EncodeToMemory(&pem.Block{Type: "PRIVATE KEY", Bytes: skPKCS8}), 0600)
-	fatalIfErr(err, "failed to save TLS server private key")
+	err = ioutil.WriteFile(cf.tlsKeyFile, pem.EncodeToMemory(&pem.Block{Type: "PRIVATE KEY", Bytes: skPKCS8}), 0600)
+	FatalIfErr(err, "failed to save TLS server private key")
 
-	log.Printf("Saving Root CA certificate to PEM file: %s", caCertFile)
-	err = ioutil.WriteFile(tlsCertFile, pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: tlsDER}), 0644)
-	fatalIfErr(err, "failed to save TLS server certificate")
+	log.Printf("Saving Root CA certificate to PEM file: %s", cf.caCertFile)
+	err = ioutil.WriteFile(cf.tlsCertFile, pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: tlsDER}), 0644)
+	FatalIfErr(err, "failed to save TLS server certificate")
 
 	log.Printf("New TLS server certificate/key successfully created!")
 

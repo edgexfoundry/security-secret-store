@@ -14,6 +14,7 @@
    limitations under the License.
 
   @author: Alain Pulluelo, ForgeRock AS (created: July 27, 2018)
+  @author: Tingyu Zeng, DELL (updated: May 22, 2019)
   @version: 1.0.0
 */
 
@@ -31,6 +32,7 @@ import (
 
 	logger "github.com/edgexfoundry/go-mod-core-contracts/clients/logger"
 	model "github.com/edgexfoundry/go-mod-core-contracts/models"
+	worker "github.com/edgexfoundry/security-secret-store/internal/pkg/vaultworker"
 )
 
 var debug = false
@@ -38,7 +40,7 @@ var lc = CreateLogging()
 
 // CreateLogging Logger functionality
 func CreateLogging() logger.LoggingClient {
-	return logger.NewClient(SecurityService, false, fmt.Sprintf("%s-%s.log", SecurityService, time.Now().Format("2006-01-02")), model.InfoLog)
+	return logger.NewClient(worker.SecurityService, false, fmt.Sprintf("%s-%s.log", SecurityService, time.Now().Format("2006-01-02")), model.InfoLog)
 }
 
 
@@ -47,7 +49,7 @@ func main() {
 	lc.Info("-------------------- Vault Worker Cycle ------------------------")
 
 	if len(os.Args) < 2 {
-		HelpCallback()
+		worker.HelpCallback()
 	}
 
 	useConsul := flag.Bool("consul", false, "retrieve configuration from consul server")
@@ -57,7 +59,7 @@ func main() {
 	configFileLocation := flag.String("configfile", "res/configuration.toml", "configuration file")
 	waitInterval := flag.Int("wait", 30, "time to wait between checking Vault status in seconds.")
 
-	flag.Usage = HelpCallback
+	flag.Usage = worker.HelpCallback
 	flag.Parse()
 
 	if *debugActive {
@@ -73,7 +75,7 @@ func main() {
 		os.Exit(0)
 	}
 
-	config, err := LoadTomlConfig(*configFileLocation)
+	config, err := worker.LoadTomlConfig(*configFileLocation)
 	if err != nil {
 		lc.Error("Failed to retrieve config data from local file. Please make sure res/configuration.toml file exists with correct format.")
 		return
@@ -115,7 +117,7 @@ func main() {
 	loopExit := false
 
 	for {
-		sCode, _ := vaultHealthCheck(config, client)
+		sCode, _ := worker.VaultHealthCheck(config, client)
 
 		switch sCode {
 		case 200:
@@ -126,16 +128,16 @@ func main() {
 			loopExit = true
 		case 501:
 			lc.Info(fmt.Sprintf("Vault is not initialized (Status Code: %d). Starting initialisation and unseal phases.", sCode))
-			_, err = vaultInit(config, client, debug)
+			_, err = worker.VaultInit(config, client, debug)
 			if err == nil {
-				_, err = vaultUnseal(config, client, debug)
+				_, err = worker.VaultUnseal(config, client, debug)
 				if err == nil {
 					loopExit = true
 				}
 			}
 		case 503:
 			lc.Info(fmt.Sprintf("Vault is sealed (Status Code: %d). Starting unseal phase...", sCode))
-			_, err = vaultUnseal(config, client, debug)
+			_, err = worker.VaultUnseal(config, client, debug)
 			if err == nil {
 				loopExit = true
 			}
@@ -158,10 +160,10 @@ func main() {
 	// Importing Admin and Kong Policies in Vault + create corresponding tokens
 	// -----------------------------------------------------------------------------------
 	// Get the Vault Root Token generated after Vault initialization
-	rootToken, err := getSecret(config.SecretService.TokenFolderPath + "/" + config.SecretService.VaultInitParm)
+	rootToken, err := worker.GetSecret(config.SecretService.TokenFolderPath + "/" + config.SecretService.VaultInitParm)
 	if err != nil {
 		lc.Error("Fatal Error fetching Vault root token.")
-		fatalIfErr(err, "Root token fetch failure")
+		worker.FatalIfErr(err, "Root token fetch failure")
 	}
 
 	/*
@@ -177,7 +179,7 @@ func main() {
 		edgex-vault-worker | ERROR: 2018/10/20 10:52:55 Fatal Error importing Admin policy in Vault.
 	*/
 	for {
-		if sCode, _ := vaultHealthCheck(config, client); sCode == 200 { // Healthcheck output (code 200 is OK status)
+		if sCode, _ := worker.VaultHealthCheck(config, client); sCode == 200 { // Healthcheck output (code 200 is OK status)
 			break
 		}
 	}
@@ -186,69 +188,69 @@ func main() {
 	// Read the Admin HCL config file and build the policy request
 	lc.Info("Verifying Admin policy file hash (SHA256).")
 	policyFile := config.SecretService.PolicyPath4Admin
-	_, err = hashFile(&policyFile, debug)
+	_, err = worker.HashFile(&policyFile, debug)
 	if err != nil {
-		fatalIfErr(err, "Calculating policy file hash (SHA256)")
+		worker.FatalIfErr(err, "Calculating policy file hash (SHA256)")
 	}
 	lc.Info("Reading Admin policy file.")
-	policyRequest, err := getPolicyFromFile(&policyFile)
+	policyRequest, err := worker.GetPolicyFromFile(&policyFile)
 	if err != nil {
 		lc.Error("Fatal Error opening Admin policy file.")
-		fatalIfErr(err, "Opening policy file (Admin)")
+		worker.FatalIfErr(err, "Opening policy file (Admin)")
 	}
 
 	// Import the Admin policy data into Vault
 	lc.Info("Importing Vault Admin policy.")
-	err = importPolicy(config.SecretService.PolicyName4Admin, &policyRequest, rootToken.Token, config, client)
+	err = worker.ImportPolicy(config.SecretService.PolicyName4Admin, &policyRequest, rootToken.Token, config, client)
 	if err != nil {
 		lc.Error("Fatal Error importing Admin policy in Vault.")
-		fatalIfErr(err, "Import policy failure")
+		worker.FatalIfErr(err, "Import policy failure")
 	}
 
 	// Create Admin token associated with admin policy in Vault
 	lc.Info("Creating Vault Admin token.")
-	err = createToken(config.SecretService.TokenName4Admin, config.SecretService.PolicyName4Admin, rootToken.Token, config, client)
+	err = worker.CreateToken(config.SecretService.TokenName4Admin, config.SecretService.PolicyName4Admin, rootToken.Token, config, client)
 	if err != nil {
 		lc.Error("Fatal Error creating Admin token in Vault.")
-		fatalIfErr(err, "Create token failure (Admin)")
+		worker.FatalIfErr(err, "Create token failure (Admin)")
 	}
 
 	// ------------------ Kong Vault Policies and associated token ----------------------
 	// Read the Kong HCL file and build the policy request
 	lc.Info("Verifying Kong policy file hash (SHA256).")
 	policyFile = config.SecretService.PolicyPath4Kong
-	_, err = hashFile(&policyFile, debug)
+	_, err = worker.HashFile(&policyFile, debug)
 	if err != nil {
-		fatalIfErr(err, "Calculating policy file hash (SHA256)")
+		worker.FatalIfErr(err, "Calculating policy file hash (SHA256)")
 	}
 	lc.Info("Reading Kong policy file.")
 	policyFile = config.SecretService.PolicyPath4Kong
-	policyRequest, err = getPolicyFromFile(&policyFile)
+	policyRequest, err = worker.GetPolicyFromFile(&policyFile)
 	if err != nil {
 		lc.Error("Fatal Error opening Kong policy file.")
-		fatalIfErr(err, "Opening policy file (Kong)")
+		worker.FatalIfErr(err, "Opening policy file (Kong)")
 	}
 
 	// Import the Kong policy data into Vault
 	lc.Info("Importing Vault Kong policy.")
-	err = importPolicy(config.SecretService.PolicyName4Kong, &policyRequest, rootToken.Token, config, client)
+	err = worker.ImportPolicy(config.SecretService.PolicyName4Kong, &policyRequest, rootToken.Token, config, client)
 	if err != nil {
 		lc.Error("Fatal Error importing Kong policy in Vault.")
-		fatalIfErr(err, "Import policy failure")
+		worker.FatalIfErr(err, "Import policy failure")
 	}
 
 	// Create Kong token associated with kong policy in Vault
 	lc.Info("Creating Vault Kong token.")
-	err = createToken(config.SecretService.TokenName4Kong, config.SecretService.PolicyName4Kong, rootToken.Token, config, client)
+	err = worker.CreateToken(config.SecretService.TokenName4Kong, config.SecretService.PolicyName4Kong, rootToken.Token, config, client)
 	if err != nil {
 		lc.Error("Fatal Error creating Kong token in Vault.")
-		fatalIfErr(err, "Create token failure (Kong)")
+		worker.FatalIfErr(err, "Create token failure (Kong)")
 	}
-	// -----------------------------------------------------------------------------------
+	
 
 	secretServiceBaseURL := fmt.Sprintf("https://%s:%s/", config.SecretService.Server, config.SecretService.Port)
 
-	hasMongoCredentails, err := credentialInStore(config, secretServiceBaseURL, config.SecretService.MongodbinitSecretPath, client)
+	hasMongoCredentails, err := worker.CredentialInStore(config, secretServiceBaseURL, config.SecretService.MongodbinitSecretPath, client)
 	if err != nil {
 		lc.Error(fmt.Sprintf("Failed to check if the MongoDB initlization parameters are in the secret store: %s", err.Error()))
 		os.Exit(1)
@@ -257,10 +259,10 @@ func main() {
 	if hasMongoCredentails == true {
 		lc.Info("MongoDB initialization parameters are in the secret store already. Skip creating the credentials.")
 	} else {
-		initMongoDBCredentials(config, secretServiceBaseURL, client)
+		worker.InitMongoDBCredentials(config, secretServiceBaseURL, client)
 	}	
 
-	hasCertKeyPair, err := certKeyPairInStore(config, secretServiceBaseURL, client, debug)
+	hasCertKeyPair, err := worker.CertKeyPairInStore(config, secretServiceBaseURL, client, debug)
 	if err != nil {
 		lc.Error(fmt.Sprintf("Failed to check if the API Gateway TLS certificate and key are in the secret store: %s", err.Error()))
 		os.Exit(1)
@@ -272,7 +274,7 @@ func main() {
 	}
 	lc.Info("API Gateway TLS certificate and key are not in the secret store yet, uploading them.")
 
-	cert, sk, err := loadCertKeyPair(config.SecretService.CertFilePath, config.SecretService.KeyFilePath)
+	cert, sk, err := worker.LoadCertKeyPair(config.SecretService.CertFilePath, config.SecretService.KeyFilePath)
 	if err != nil {
 		lc.Error("Failed to load API Gateway TLS certificate and key from volume:")
 		lc.Error(fmt.Sprintf("--> Certificate path: %s", config.SecretService.CertFilePath))
@@ -282,7 +284,7 @@ func main() {
 	lc.Info("API Gateway TLS certificate and key successfully loaded from volume, now will upload to secret store.")
 
 	for {
-		done, _ := uploadProxyCerts(config, secretServiceBaseURL, cert, sk, client)
+		done, _ := worker.UploadProxyCerts(config, secretServiceBaseURL, cert, sk, client)
 		if done == true {
 			os.Exit(0)
 		} else {

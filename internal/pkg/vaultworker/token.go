@@ -15,7 +15,7 @@
  * @version: 1.0.0
  *******************************************************************************/
 
-package main
+package vaultworker
 
 import (
 	"encoding/json"
@@ -27,7 +27,7 @@ type Secret struct {
 	Token string `json:"root_token"`
 }
 
-func getSecret(filename string) (Secret, error) {
+func GetSecret(filename string) (Secret, error) {
 	s := Secret{}
 	raw, err := ioutil.ReadFile(filename)
 	if err != nil {

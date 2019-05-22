@@ -14,7 +14,7 @@
  * @author: Tingyu Zeng, Dell
  * @version: 1.0.0
  *******************************************************************************/
-package main
+package vaultworker
 
 import (
 	"encoding/json"
@@ -23,8 +23,11 @@ import (
 	"io/ioutil"
 	"net/http"
 	"path/filepath"
+	"time"
 
 	"github.com/dghubble/sling"
+	logger "github.com/edgexfoundry/go-mod-core-contracts/clients/logger"
+	model "github.com/edgexfoundry/go-mod-core-contracts/models"	
 )
 
 // CertKeyPair X.509 TLS certioficate and associated private key
@@ -45,9 +48,15 @@ type CertInfo struct {
 	Snis []string `json:"snis,omitempty"`
 }
 
-// ----------------------------------------------------------
-func loadKongCerts(config *tomlConfig, url string, secretBaseURL string, c *http.Client, debug bool) error {
-	cert, key, err := getCertKeyPair(config, secretBaseURL, c, debug)
+var lc = CreateLogging()
+
+// CreateLogging Logger functionality
+func CreateLogging() logger.LoggingClient {
+	return logger.NewClient(SecurityService, false, fmt.Sprintf("%s-%s.log", SecurityService, time.Now().Format("2006-01-02")), model.InfoLog)
+}
+
+func LoadKongCerts(config *tomlConfig, url string, secretBaseURL string, c *http.Client, debug bool) error {
+	cert, key, err := GetCertKeyPair(config, secretBaseURL, c, debug)
 	if err != nil {
 		return err
 	}
@@ -73,10 +82,9 @@ func loadKongCerts(config *tomlConfig, url string, secretBaseURL string, c *http
 	return nil
 }
 
-// ----------------------------------------------------------
-func getCertKeyPair(config *tomlConfig, secretBaseURL string, c *http.Client, debug bool) (string, string, error) {
+func GetCertKeyPair(config *tomlConfig, secretBaseURL string, c *http.Client, debug bool) (string, string, error) {
 
-	t, err := getSecret(filepath.Join(config.SecretService.TokenFolderPath, config.SecretService.VaultInitParm))
+	t, err := GetSecret(filepath.Join(config.SecretService.TokenFolderPath, config.SecretService.VaultInitParm))
 	if err != nil {
 		return "", "", err
 	}
@@ -110,9 +118,8 @@ func getCertKeyPair(config *tomlConfig, secretBaseURL string, c *http.Client, de
 	return collector.Section.Cert, collector.Section.Key, nil
 }
 
-// ----------------------------------------------------------
-func certKeyPairInStore(config *tomlConfig, secretBaseURL string, c *http.Client, debug bool) (bool, error) {
-	cert, key, err := getCertKeyPair(config, secretBaseURL, c, debug)
+func CertKeyPairInStore(config *tomlConfig, secretBaseURL string, c *http.Client, debug bool) (bool, error) {
+	cert, key, err := GetCertKeyPair(config, secretBaseURL, c, debug)
 	if err != nil {
 		return false, err
 	}
@@ -122,8 +129,7 @@ func certKeyPairInStore(config *tomlConfig, secretBaseURL string, c *http.Client
 	return false, nil
 }
 
-// ----------------------------------------------------------
-func loadCACert(caPath string) (string, error) {
+func LoadCACert(caPath string) (string, error) {
 	certPEMBlock, err := ioutil.ReadFile(caPath)
 	if err != nil {
 		return "", err
@@ -133,8 +139,7 @@ func loadCACert(caPath string) (string, error) {
 	return cert, nil
 }
 
-// ----------------------------------------------------------
-func loadCertKeyPair(certPath string, keyPath string) (string, string, error) {
+func LoadCertKeyPair(certPath string, keyPath string) (string, string, error) {
 	certPEMBlock, err := ioutil.ReadFile(certPath)
 	if err != nil {
 		return "", "", err

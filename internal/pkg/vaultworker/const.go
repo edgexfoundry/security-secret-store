@@ -14,7 +14,7 @@
  * @author: Tingyu Zeng, Dell
  * @version: 1.0.0
  *******************************************************************************/
-package main
+package vaultworker
 
 // Global constants
 const (

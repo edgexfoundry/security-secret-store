@@ -27,15 +27,15 @@ USER root
 
 # Vault Config File
 WORKDIR /vault/config
-COPY local-tls.hcl ./local.hcl
+COPY configs/local-tls.json ./local.json
 
 WORKDIR /vault
 # Vault PKI/TLS setup/config binary
-COPY pkisetup/pkisetup .
+COPY cmd/pkisetup/pkisetup .
 # Vault PKI/TLS materials
-COPY pkisetup/pkisetup-vault.json .
+COPY configs/pkisetup-vault.json .
 # Kong PKI/TLS materials
-COPY pkisetup/pkisetup-kong.json .
+COPY configs/pkisetup-kong.json .
 
 # Create assets folder (needed for unseal key/s, root token and tmp)
 # Run CA/Vault and Kong PKI/TLS setups and peform housekeeping tasks

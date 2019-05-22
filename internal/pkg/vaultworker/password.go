@@ -15,13 +15,13 @@
  * @version: 1.0.0
  *******************************************************************************/
 
-package main
+package vaultworker
 
 import (
 	"github.com/sethvargo/go-password/password"
 )
 
-func createCredential() (string, error) {
+func CreateCredential() (string, error) {
 	pass, err := password.Generate(8, 4, 4, false, false)
 	if err != nil {
 		return "", err

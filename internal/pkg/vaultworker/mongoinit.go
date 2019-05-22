@@ -15,7 +15,7 @@
  * @version: 1.0.0
  *******************************************************************************/
 
-package main
+package vaultworker
 
 import (
 	"encoding/json"
@@ -44,9 +44,9 @@ type MongoCredentials struct {
 	LoggingPasswd       string `json:"loggingpasswd,omitempty"`
 }
 
-func credentialInStore(config *tomlConfig, secretBaseURL string, credPath string, c *http.Client) (bool, error) {
+func CredentialInStore(config *tomlConfig, secretBaseURL string, credPath string, c *http.Client) (bool, error) {
 
-	t, err := getSecret(config.SecretService.TokenFolderPath + "/" + config.SecretService.VaultInitParm)
+	t, err := GetSecret(config.SecretService.TokenFolderPath + "/" + config.SecretService.VaultInitParm)
 	if err != nil {
 		lc.Error(err.Error())
 		return false, err
@@ -83,12 +83,12 @@ func credentialInStore(config *tomlConfig, secretBaseURL string, credPath string
 	return false, nil
 }
 
-func initMongoDBCredentials(config *tomlConfig, secretBaseURL string, c *http.Client) error {
+func InitMongoDBCredentials(config *tomlConfig, secretBaseURL string, c *http.Client) error {
 
 	//TODO: we only covert coredata credential for this release, the rest needs to be implemented later.
-	adminpasswd, _ := createCredential()
+	adminpasswd, _ := CreateCredential()
 	//metadatapasswd, _ := createCredential()
-	coreadatapasswd, _ := createCredential()
+	coreadatapasswd, _ := CreateCredential()
 	//rulesenginepasswd, _ := createCredential()
 	//notificationspasswd, _ := createCredential()
 	//schedulerpasswd, _ := createCredential()
@@ -111,7 +111,7 @@ func initMongoDBCredentials(config *tomlConfig, secretBaseURL string, c *http.Cl
 		LoggingPasswd:       "password",
 	}
 
-	t, err := getSecret(config.SecretService.TokenFolderPath + "/" + config.SecretService.VaultInitParm)
+	t, err := GetSecret(config.SecretService.TokenFolderPath + "/" + config.SecretService.VaultInitParm)
 	if err != nil {
 		lc.Error(err.Error())
 		return err

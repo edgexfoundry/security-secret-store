@@ -5,12 +5,15 @@ _*.sh
 .idea/
 .vscode/
 vendor
-glide.lock
 *.DS_Store
 go.sum
 
 # binary files
-core/*.log
-core/*.exe
-core/edgex-vault-worker
-pkisetup/pkisetup
+cmd/pkisetup/*.log
+cmd/pkisetup/*.exe
+cmd/vaultworker/*.log
+cmd/vaultworker/*.exe
+cmd/pkisetup/pkisetup
+cmd/vaultworker/edgex-vault-worker
+internal/pki/pkisetup/*.test
+internal/pki/pkisetup/testconfig/*.*
