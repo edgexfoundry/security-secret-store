@@ -266,7 +266,6 @@ func VaultPolicyCheck(policyName string, tokenID string, config *tomlConfig, htt
 	return resp.StatusCode, nil
 }
 
-// ----------------------------------------------------------
 func HashFile(policyFilePtr *string, debug bool) (hashSum []byte, err error) {
 
 	inputFile, err := os.Open(*policyFilePtr)
@@ -290,9 +289,9 @@ func HashFile(policyFilePtr *string, debug bool) (hashSum []byte, err error) {
 	return hashSum, err
 }
 
-// ----------------------------------------------------------
+/*FatalIfErr =  Prinf() followed by a call to os.Exit(1)*/
 func FatalIfErr(err error, msg string) {
 	if err != nil {
-		log.Fatalf("ERROR: %s: %s", msg, err) // fatalf() =  Prinf() followed by a call to os.Exit(1)
+		log.Fatalf("ERROR: %s: %s", msg, err) 
 	}
 }

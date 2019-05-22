@@ -22,7 +22,6 @@ import (
 	"io/ioutil"
 )
 
-// Secret Root Token
 type Secret struct {
 	Token string `json:"root_token"`
 }

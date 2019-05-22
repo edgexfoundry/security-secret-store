@@ -34,7 +34,6 @@ Server Options:
 	-h, --help					Show this message
 `
 
-// HelpCallback	print out the flag options for the server
 func HelpCallback() {
 	msg := fmt.Sprintf(usageStr, os.Args[0])
 	fmt.Printf("%s\n", msg)

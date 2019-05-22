@@ -56,7 +56,7 @@ func CreateLogging() logger.LoggingClient {
 }
 
 func LoadKongCerts(config *tomlConfig, url string, secretBaseURL string, c *http.Client, debug bool) error {
-	cert, key, err := GetCertKeyPair(config, secretBaseURL, c, debug)
+	cert, key, err := getCertKeyPair(config, secretBaseURL, c, debug)
 	if err != nil {
 		return err
 	}
@@ -82,7 +82,7 @@ func LoadKongCerts(config *tomlConfig, url string, secretBaseURL string, c *http
 	return nil
 }
 
-func GetCertKeyPair(config *tomlConfig, secretBaseURL string, c *http.Client, debug bool) (string, string, error) {
+func getCertKeyPair(config *tomlConfig, secretBaseURL string, c *http.Client, debug bool) (string, string, error) {
 
 	t, err := GetSecret(filepath.Join(config.SecretService.TokenFolderPath, config.SecretService.VaultInitParm))
 	if err != nil {
@@ -119,7 +119,7 @@ func GetCertKeyPair(config *tomlConfig, secretBaseURL string, c *http.Client, de
 }
 
 func CertKeyPairInStore(config *tomlConfig, secretBaseURL string, c *http.Client, debug bool) (bool, error) {
-	cert, key, err := GetCertKeyPair(config, secretBaseURL, c, debug)
+	cert, key, err := getCertKeyPair(config, secretBaseURL, c, debug)
 	if err != nil {
 		return false, err
 	}
