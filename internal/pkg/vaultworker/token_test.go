@@ -24,9 +24,10 @@ import (
 	"fmt"	
 )
 
-const Tokefilepath = "..\\..\\..\\test\\test-resp-init.json"
+const TokenfilepathWin = "..\\..\\..\\test\\test-resp-init.json"
+const TokenfilepathUnix = "../../../test/test-resp-init.json"
 func TestGetSecret(t *testing.T){
-	 p := Tokefilepath
+	 p := TokenfilepathWin
 	token, err := GetSecret(p)
 
 	if err != nil {
