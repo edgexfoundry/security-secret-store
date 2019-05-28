@@ -8,12 +8,20 @@ vendor
 *.DS_Store
 go.sum
 
-# binary files
+# binary and test files
 cmd/pkisetup/*.log
 cmd/pkisetup/*.exe
 cmd/vaultworker/*.log
 cmd/vaultworker/*.exe
 cmd/pkisetup/pkisetup
 cmd/vaultworker/edgex-vault-worker
+cmd/pkiinit/pki-init
+cmd/pkiinit/*.log
+cmd/pkiinit/*.exe
 internal/pki/pkisetup/*.test
 internal/pki/pkisetup/testconfig/*.*
+internal/pkg/pkisetup/test*
+internal/pkg/vaultworker/*.log
+internal/pkg/pkiinit/pkiinit
+internal/pkg/pkiinit/pki-init
+docker-compose.yml.test

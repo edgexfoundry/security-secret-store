@@ -21,6 +21,7 @@ package vaultworker
 
 import (
 	"fmt"
+	"runtime"
 	"testing"
 )
 
@@ -28,7 +29,14 @@ const TokenfilepathWin = "..\\..\\..\\test\\test-resp-init.json"
 const TokenfilepathUnix = "../../../test/test-resp-init.json"
 
 func TestGetSecret(t *testing.T) {
-	p := TokenfilepathWin
+	var p string
+	switch runtime.GOOS {
+	case "windows":
+		p = TokenfilepathWin
+	case "unix":
+	default:
+		p = TokenfilepathUnix
+	}
 	token, err := GetSecret(p)
 
 	if err != nil {
