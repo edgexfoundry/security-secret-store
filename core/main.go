@@ -29,7 +29,8 @@ import (
 	"os"
 	"time"
 
-	logger "github.com/edgexfoundry/go-mod-core-contracts/clients/logging"
+	logger "github.com/edgexfoundry/go-mod-core-contracts/clients/logger"
+	model "github.com/edgexfoundry/go-mod-core-contracts/models"
 )
 
 var debug = false
@@ -37,8 +38,9 @@ var lc = CreateLogging()
 
 // CreateLogging Logger functionality
 func CreateLogging() logger.LoggingClient {
-	return logger.NewClient(SecurityService, false, fmt.Sprintf("%s-%s.log", SecurityService, time.Now().Format("2006-01-02")), logger.InfoLog)
+	return logger.NewClient(SecurityService, false, fmt.Sprintf("%s-%s.log", SecurityService, time.Now().Format("2006-01-02")), model.InfoLog)
 }
+
 
 func main() {
 
