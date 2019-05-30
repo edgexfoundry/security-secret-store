@@ -30,10 +30,17 @@ import (
 	"time"
 
 	logger "github.com/edgexfoundry/go-mod-core-contracts/clients/logger"
+	model "github.com/edgexfoundry/go-mod-core-contracts/models"
 )
 
 var debug = false
-var lc logger.LoggingClient
+var lc = CreateLogging()
+
+// CreateLogging Logger functionality
+func CreateLogging() logger.LoggingClient {
+	return logger.NewClient(SecurityService, false, fmt.Sprintf("%s-%s.log", SecurityService, time.Now().Format("2006-01-02")), model.InfoLog)
+}
+
 
 func main() {
 
