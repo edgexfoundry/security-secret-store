@@ -245,22 +245,15 @@ func main() {
 	if err != nil {
 		lc.Error("Fatal Error creating Kong token in Vault.")
 		worker.FatalIfErr(err, "Create token failure (Kong)")
-	}
-	
+	}	
 
 	secretServiceBaseURL := fmt.Sprintf("https://%s:%s/", config.SecretService.Server, config.SecretService.Port)
 
-	hasMongoCredentails, err := worker.CredentialInStore(config, secretServiceBaseURL, config.SecretService.MongodbinitSecretPath, client)
+	err = worker.CredentialsInit(config, secretServiceBaseURL, client )
 	if err != nil {
-		lc.Error(fmt.Sprintf("Failed to check if the MongoDB initlization parameters are in the secret store: %s", err.Error()))
+		lc.Error(fmt.Sprintf("Failed to create initlization parameters in the secret store: %s", err.Error()))
 		os.Exit(1)
 	}
-
-	if hasMongoCredentails == true {
-		lc.Info("MongoDB initialization parameters are in the secret store already. Skip creating the credentials.")
-	} else {
-		worker.InitMongoDBCredentials(config, secretServiceBaseURL, client)
-	}	
 
 	hasCertKeyPair, err := worker.CertKeyPairInStore(config, secretServiceBaseURL, client, debug)
 	if err != nil {
