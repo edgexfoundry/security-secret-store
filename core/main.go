@@ -40,7 +40,6 @@ var lc = CreateLogging()
 func CreateLogging() logger.LoggingClient {
 	return logger.NewClient(SecurityService, false, fmt.Sprintf("%s-%s.log", SecurityService, time.Now().Format("2006-01-02")), model.InfoLog)
 }
-)
 
 func main() {
 
