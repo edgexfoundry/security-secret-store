@@ -27,7 +27,7 @@ USER root
 
 # Vault Config File
 WORKDIR /vault/config
-COPY configs/local-tls.json ./local.json
+COPY configs/local-tls.hcl ./local.hcl
 
 WORKDIR /vault
 # Vault PKI/TLS setup/config binary
