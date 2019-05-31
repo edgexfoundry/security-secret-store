@@ -102,7 +102,7 @@ func InitCredentials(config *tomlConfig, secretBaseURL string, secretPath string
 
 	lc.Info(fmt.Sprintf("%s - %d", secretPath, resp.StatusCode))
 
-	if resp.StatusCode == http.StatusOK || resp.StatusCode == http.StatusCreated || resp.StatusCode == http.StatusConflict {
+	if resp.StatusCode == http.StatusOK ||  resp.StatusCode == http.StatusCreated || resp.StatusCode == http.StatusNoContent || resp.StatusCode == http.StatusConflict {
 		lc.Info(fmt.Sprintf("Successful to add init credentials to secret service with path %s.", secretPath))
 	} else {
 		s := fmt.Sprintf("Failed to add init credentials on path %s with errorcode %d.", secretPath, resp.StatusCode)

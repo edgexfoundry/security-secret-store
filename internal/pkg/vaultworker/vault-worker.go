@@ -265,7 +265,7 @@ func UploadProxyCerts(config *tomlConfig, secretBaseURL string, cert string, sk 
 
 	defer resp.Body.Close()
 
-	if resp.StatusCode == http.StatusOK || resp.StatusCode == http.StatusCreated {
+	if resp.StatusCode == http.StatusOK ||  resp.StatusCode == http.StatusCreated || resp.StatusCode == http.StatusNoContent  {
 		lc.Info("API Gateway TLS certificate and key successfully loaded in the secret store.")
 	} else {
 		b, _ := ioutil.ReadAll(resp.Body)
