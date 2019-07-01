@@ -27,7 +27,7 @@ import (
 
 	"github.com/dghubble/sling"
 	logger "github.com/edgexfoundry/go-mod-core-contracts/clients/logger"
-	model "github.com/edgexfoundry/go-mod-core-contracts/models"	
+	model "github.com/edgexfoundry/go-mod-core-contracts/models"
 )
 
 // CertKeyPair X.509 TLS certioficate and associated private key
@@ -73,7 +73,7 @@ func LoadKongCerts(config *tomlConfig, url string, secretBaseURL string, c *http
 		return err
 	}
 
-	if resp.StatusCode == http.StatusOK ||  resp.StatusCode == http.StatusCreated || resp.StatusCode == http.StatusNoContent  || resp.StatusCode == http.StatusConflict {
+	if resp.StatusCode == http.StatusOK || resp.StatusCode == http.StatusCreated || resp.StatusCode == http.StatusNoContent || resp.StatusCode == http.StatusConflict {
 		lc.Info("Successful to add certificate to the reverse proxy.")
 	} else {
 		s := fmt.Sprintf("Failed to add certificate with errorcode %d.", resp.StatusCode)

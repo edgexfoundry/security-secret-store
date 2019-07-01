@@ -12,7 +12,7 @@
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License.
-  
+
   @author: Tingyu Zeng, DELL (created: May 21, 2019)
   @version: 1.0.0
 */
@@ -20,49 +20,49 @@
 package pkisetup
 
 import (
-    "testing"
+	"testing"
 )
 
-var testKeyScheme = KeyScheme {
-	DumpKeys   : "false",
-	RSA        : "false",
-	RSAKeySize : "4096",
-	EC         : "true",
-	ECCurve   : "384",
+var testKeyScheme = KeyScheme{
+	DumpKeys:   "false",
+	RSA:        "false",
+	RSAKeySize: "4096",
+	EC:         "true",
+	ECCurve:    "384",
 }
 
-var testRootCA = RootCA {
-	CAName    : "testCA.test",
-	CACountry : "testCACountry",
-	CAState  : "testCAState",
-	CALocality : "testCALocality",
-	CAOrg    : "testCAOrg",
+var testRootCA = RootCA{
+	CAName:     "testCA.test",
+	CACountry:  "testCACountry",
+	CAState:    "testCAState",
+	CALocality: "testCALocality",
+	CAOrg:      "testCAOrg",
 }
 
-var testTLSServer = TLSServer {
-	TLSHost    : "testtlshost",
-	TLSDomain  : "testtlsdomain",
-	TLSCountry  : "testtlscountry",
-	TLSSate    : "testtlsstate",
-	TLSLocality : "testtlslocality",
-	TLSOrg     : "testtlsorg",
+var testTLSServer = TLSServer{
+	TLSHost:     "testtlshost",
+	TLSDomain:   "testtlsdomain",
+	TLSCountry:  "testtlscountry",
+	TLSSate:     "testtlsstate",
+	TLSLocality: "testtlslocality",
+	TLSOrg:      "testtlsorg",
 }
 
-var testX509Config = X509Config {
-	CreateNewRootCA : "true",
-	WorkingDir     : "./testconfig",
-	PKISetupDir    : "pki",
-	DumpConfig    :  "true",
-	KeyScheme     : testKeyScheme,
-	RootCA       :  testRootCA,
-	TLSServer    :   testTLSServer,
+var testX509Config = X509Config{
+	CreateNewRootCA: "true",
+	WorkingDir:      "./testconfig",
+	PKISetupDir:     "pki",
+	DumpConfig:      "true",
+	KeyScheme:       testKeyScheme,
+	RootCA:          testRootCA,
+	TLSServer:       testTLSServer,
 }
 
 func TestCreateEnvWithValidConfig(t *testing.T) {
-    myconfig := testX509Config
-    _, err := CreateEnv(&myconfig)
+	myconfig := testX509Config
+	_, err := CreateEnv(&myconfig)
 
-    if err != nil {
-        t.Errorf("Failed to create X509 env with correct configuration data.")
-    }
+	if err != nil {
+		t.Errorf("Failed to create X509 env with correct configuration data.")
+	}
 }

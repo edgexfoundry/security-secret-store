@@ -292,6 +292,6 @@ func HashFile(policyFilePtr *string, debug bool) (hashSum []byte, err error) {
 /*FatalIfErr =  Prinf() followed by a call to os.Exit(1)*/
 func FatalIfErr(err error, msg string) {
 	if err != nil {
-		log.Fatalf("ERROR: %s: %s", msg, err) 
+		log.Fatalf("ERROR: %s: %s", msg, err)
 	}
 }

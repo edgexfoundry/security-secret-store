@@ -90,8 +90,8 @@ func GenCA(cf *CertConfig) (*x509.Certificate, crypto.PrivateKey, error) {
 		KeyUsage: x509.KeyUsageCertSign,
 
 		BasicConstraintsValid: true,
-		IsCA:           true,
-		MaxPathLenZero: true,
+		IsCA:                  true,
+		MaxPathLenZero:        true,
 	}
 
 	log.Printf("Generating Root CA certificate")

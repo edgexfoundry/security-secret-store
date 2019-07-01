@@ -20,12 +20,12 @@
 
 package main
 
-import (	
+import (
 	"flag"
-	"log"
-	"os"	
-	"strconv"		
 	pki "github.com/edgexfoundry/security-secret-store/internal/pkg/pkisetup"
+	"log"
+	"os"
+	"strconv"
 )
 
 func main() {
@@ -33,7 +33,7 @@ func main() {
 	var configFile string
 	// Handling the command flags
 	log.SetFlags(0)
-	flag.StringVar(&configFile, "config", "", "use a JSON file as configuration: /path/to/file.json")	
+	flag.StringVar(&configFile, "config", "", "use a JSON file as configuration: /path/to/file.json")
 	flag.Parse()
 	// Missing --config flag
 	if configFile == "" {
@@ -56,16 +56,16 @@ func main() {
 		pki.FatalIfErr(err, "Environment initialization")
 	}
 
-	newCA, err := strconv.ParseBool(x509config.CreateNewRootCA)	
-	
+	newCA, err := strconv.ParseBool(x509config.CreateNewRootCA)
+
 	// Optionaly generate the Root CA PKI materials (RSA or EC)
-	if newCA {		
+	if newCA {
 		if _, _, err = pki.GenCA(&cf); err != nil {
 			pki.FatalIfErr(err, "Root CA generation")
 		}
 	}
 
-	// Generate the TLS server PKI materials (RSA or EC)	
+	// Generate the TLS server PKI materials (RSA or EC)
 	if _, _, err = pki.GenCert(&cf); err != nil {
 		pki.FatalIfErr(err, "TLS server generation")
 	}

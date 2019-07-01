@@ -55,7 +55,6 @@ type UnsealResponse struct {
 	Progress int  `json:"progress"`
 }
 
-
 func VaultHealthCheck(config *tomlConfig, httpClient *http.Client) (sCode int, err error) {
 
 	// Build Vault API full URL
@@ -265,7 +264,7 @@ func UploadProxyCerts(config *tomlConfig, secretBaseURL string, cert string, sk 
 
 	defer resp.Body.Close()
 
-	if resp.StatusCode == http.StatusOK ||  resp.StatusCode == http.StatusCreated || resp.StatusCode == http.StatusNoContent  {
+	if resp.StatusCode == http.StatusOK || resp.StatusCode == http.StatusCreated || resp.StatusCode == http.StatusNoContent {
 		lc.Info("API Gateway TLS certificate and key successfully loaded in the secret store.")
 	} else {
 		b, _ := ioutil.ReadAll(resp.Body)

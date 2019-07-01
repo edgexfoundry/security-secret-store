@@ -24,12 +24,12 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/dghubble/sling"	
+	"github.com/dghubble/sling"
 )
 
 type UserPasswd struct {
-    User string
-    Passwd string
+	User   string
+	Passwd string
 }
 
 func CreateCredential() (string, error) {
@@ -77,7 +77,7 @@ func CredentialInStore(config *tomlConfig, secretBaseURL string, credPath string
 }
 
 func InitCredentials(config *tomlConfig, secretBaseURL string, secretPath string, cred *UserPasswd, c *http.Client) error {
-	
+
 	t, err := GetSecret(config.SecretService.TokenFolderPath + "/" + config.SecretService.VaultInitParm)
 	if err != nil {
 		lc.Error(err.Error())
@@ -98,7 +98,7 @@ func InitCredentials(config *tomlConfig, secretBaseURL string, secretPath string
 
 	lc.Info(fmt.Sprintf("%s - %d", secretPath, resp.StatusCode))
 
-	if resp.StatusCode == http.StatusOK ||  resp.StatusCode == http.StatusCreated || resp.StatusCode == http.StatusNoContent || resp.StatusCode == http.StatusConflict {
+	if resp.StatusCode == http.StatusOK || resp.StatusCode == http.StatusCreated || resp.StatusCode == http.StatusNoContent || resp.StatusCode == http.StatusConflict {
 		lc.Info(fmt.Sprintf("Successful to add init credentials to secret service with path %s.", secretPath))
 	} else {
 		s := fmt.Sprintf("Failed to add init credentials on path %s with errorcode %d.", secretPath, resp.StatusCode)

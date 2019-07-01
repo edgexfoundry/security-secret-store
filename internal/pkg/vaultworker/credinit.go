@@ -15,36 +15,36 @@
  * @version: 1.0.0
  *******************************************************************************/
 
- package vaultworker
+package vaultworker
 
-
- import (
-	"fmt"		
+import (
+	"fmt"
 	"net/http"
 )
 
 type CredInfo struct {
-    Path string
-    Pair *UserPasswd
+	Path string
+	Pair *UserPasswd
 }
- /* Need to creat credentials for all microservices and put them into the path of secret service
+
+/* Need to creat credentials for all microservices and put them into the path of secret service
  */
 
- func CredentialsInit(config *tomlConfig, secretBaseURL string, c *http.Client) error{
+func CredentialsInit(config *tomlConfig, secretBaseURL string, c *http.Client) error {
 
 	creds := map[string]*CredInfo{}
 
-	adminpasswd, _ := CreateCredential()	
+	adminpasswd, _ := CreateCredential()
 	creds["mongo"] = &CredInfo{Path: config.SecretService.MongoSecretPath, Pair: &UserPasswd{User: "admin", Passwd: adminpasswd}}
 
 	corepasswd, _ := CreateCredential()
-	creds["coredata"] = &CredInfo{Path: config.SecretService.CoredataSecretPath, Pair:  &UserPasswd{User: "core", Passwd: corepasswd}}
+	creds["coredata"] = &CredInfo{Path: config.SecretService.CoredataSecretPath, Pair: &UserPasswd{User: "core", Passwd: corepasswd}}
 
 	metapasswd, _ := CreateCredential()
-	creds["metadata"] = &CredInfo{Path: config.SecretService.MetadataSecretPath, Pair:  &UserPasswd{User: "meta", Passwd: metapasswd}}
+	creds["metadata"] = &CredInfo{Path: config.SecretService.MetadataSecretPath, Pair: &UserPasswd{User: "meta", Passwd: metapasswd}}
 
 	repasswd, _ := CreateCredential()
-	creds["rulesengine"] = &CredInfo{Path: config.SecretService.RulesenginesecretPath, Pair:  &UserPasswd{User: "rules_engine_user", Passwd: repasswd}}
+	creds["rulesengine"] = &CredInfo{Path: config.SecretService.RulesenginesecretPath, Pair: &UserPasswd{User: "rules_engine_user", Passwd: repasswd}}
 
 	ntpasswd, _ := CreateCredential()
 	creds["notifications"] = &CredInfo{Path: config.SecretService.NotificationsSecretPath, Pair: &UserPasswd{User: "notifications", Passwd: ntpasswd}}
@@ -54,10 +54,9 @@ type CredInfo struct {
 
 	lgpasswd, _ := CreateCredential()
 	creds["logging"] = &CredInfo{Path: config.SecretService.LoggingSecretPath, Pair: &UserPasswd{User: "logging", Passwd: lgpasswd}}
-	
 
 	for _, v := range creds {
- 		hasCred, err := CredentialInStore(config, secretBaseURL, v.Path, c)
+		hasCred, err := CredentialInStore(config, secretBaseURL, v.Path, c)
 		if err != nil {
 			return err
 		}
@@ -66,9 +65,9 @@ type CredInfo struct {
 			lc.Info(fmt.Sprintf("Credential initialization parameters are in the secret store with path %s already. Skip creating this credential.", v.Path))
 		} else {
 			err = InitCredentials(config, secretBaseURL, v.Path, v.Pair, c)
-			if err != nil{
+			if err != nil {
 				return err
-			}	
+			}
 		}
 	}
 	return nil

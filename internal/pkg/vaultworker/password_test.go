@@ -12,7 +12,7 @@
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License.
-  
+
   @author: Tingyu Zeng, DELL (created: May 21, 2019)
   @version: 1.0.0
 */
@@ -20,11 +20,10 @@
 package vaultworker
 
 import (
-    "testing"
+	"testing"
 )
 
-
-func TestCreateCredential(t *testing.T){
+func TestCreateCredential(t *testing.T) {
 	pass, err := CreateCredential()
 
 	if err != nil {

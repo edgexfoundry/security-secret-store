@@ -21,12 +21,12 @@
 package pkisetup
 
 import (
-	"path/filepath"
+	"fmt"
 	"log"
+	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
-	"os"
-	"fmt"
 )
 
 /* CertConfig holds information required to create PKI environment */
@@ -69,8 +69,8 @@ type CertConfig struct {
 /* CreateEnv creates enviroment for the PKI certs */
 func CreateEnv(x509config *X509Config) (CertConfig, error) {
 
-	cf := CertConfig {}
-	
+	cf := CertConfig{}
+
 	// Abs returns an absolute representation of path.
 	// If the path is not absolute it will be joined with the current working directory
 	// to turn it into an absolute path.
@@ -134,7 +134,7 @@ func CreateEnv(x509config *X509Config) (CertConfig, error) {
 	// Creating a new fresh PKI setup dir, if new CA is requested
 	if cf.newCA {
 		// Remove eventual previous PKI setup directory
-		// Create a new empty PKI setup directory		
+		// Create a new empty PKI setup directory
 		log.Println("New CA creation requested by configuration")
 		log.Println("Cleaning up CA PKI setup directory")
 
@@ -161,7 +161,7 @@ func CreateEnv(x509config *X509Config) (CertConfig, error) {
 		}
 		if stat.IsDir() {
 			log.Printf("Existing CA PKI setup directory: %s", cf.pkiCaDir)
-		} else {			
+		} else {
 			return cf, fmt.Errorf("Existing CA PKI setup directory is not a directory: %s", cf.pkiCaDir)
 		}
 	}

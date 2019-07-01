@@ -12,7 +12,7 @@
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License.
-  
+
   @author: Tingyu Zeng, DELL (created: May 21, 2019)
   @version: 1.0.0
 */
@@ -20,14 +20,15 @@
 package vaultworker
 
 import (
+	"fmt"
 	"testing"
-	"fmt"	
 )
 
 const TokenfilepathWin = "..\\..\\..\\test\\test-resp-init.json"
 const TokenfilepathUnix = "../../../test/test-resp-init.json"
-func TestGetSecret(t *testing.T){
-	 p := TokenfilepathWin
+
+func TestGetSecret(t *testing.T) {
+	p := TokenfilepathWin
 	token, err := GetSecret(p)
 
 	if err != nil {

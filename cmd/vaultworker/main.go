@@ -43,7 +43,6 @@ func CreateLogging() logger.LoggingClient {
 	return logger.NewClient(worker.SecurityService, false, fmt.Sprintf("%s-%s.log", worker.SecurityService, time.Now().Format("2006-01-02")), model.InfoLog)
 }
 
-
 func main() {
 
 	lc.Info("-------------------- Vault Worker Cycle ------------------------")
@@ -245,11 +244,11 @@ func main() {
 	if err != nil {
 		lc.Error("Fatal Error creating Kong token in Vault.")
 		worker.FatalIfErr(err, "Create token failure (Kong)")
-	}	
+	}
 
 	secretServiceBaseURL := fmt.Sprintf("https://%s:%s/", config.SecretService.Server, config.SecretService.Port)
 
-	err = worker.CredentialsInit(config, secretServiceBaseURL, client )
+	err = worker.CredentialsInit(config, secretServiceBaseURL, client)
 	if err != nil {
 		lc.Error(fmt.Sprintf("Failed to create initlization parameters in the secret store: %s", err.Error()))
 		os.Exit(1)

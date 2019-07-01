@@ -1,4 +1,3 @@
-
 /*
    Copyright 2018 ForgeRock AS.
 
@@ -22,9 +21,7 @@
 package pkisetup
 
 const (
- CmdUsageMsg = "Usage of ./pkisetup:"
- skFileExt = ".priv.key"
- certFileExt = ".pem"
+	CmdUsageMsg = "Usage of ./pkisetup:"
+	skFileExt   = ".priv.key"
+	certFileExt = ".pem"
 )
-
-

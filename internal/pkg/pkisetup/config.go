@@ -21,11 +21,12 @@
 package pkisetup
 
 import (
-	"log"
-	"os"	
-	"io/ioutil"
 	"encoding/json"
+	"io/ioutil"
+	"log"
+	"os"
 )
+
 // KeyScheme parameters (RSA vs EC)
 // RSA: 1024, 2048, 4096
 // EC: 224, 256, 384, 521
@@ -66,7 +67,6 @@ type X509Config struct {
 	RootCA          RootCA    `json:"x509_root_ca_parameters"`
 	TLSServer       TLSServer `json:"x509_tls_server_parameters"`
 }
-
 
 /*ReadConfig load the configuration from filesystem and return X509Config struct*/
 func ReadConfig(configFilePtr *string) (X509Config, error) {
