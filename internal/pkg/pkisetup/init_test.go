@@ -13,7 +13,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
   
-  @author: Tingyu Zeng, DELL (created: May 21th, 2019)
+  @author: Tingyu Zeng, DELL (created: May 21, 2019)
   @version: 1.0.0
 */
 

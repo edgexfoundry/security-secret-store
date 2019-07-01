@@ -93,7 +93,7 @@ func ReadConfig(configFilePtr *string) (X509Config, error) {
 	}
 
 	// Close JSON config file
-	if jsonFile.Close(); err != nil {
+	if err = jsonFile.Close(); err != nil {
 		return jsonX509Config, err
 	}
 

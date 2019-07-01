@@ -136,7 +136,7 @@ func VaultInit(config *tomlConfig, httpClient *http.Client, debug bool) (sCode i
 	}
 
 	// Save the JSON structure to a file system JSON file
-	err = ioutil.WriteFile(config.SecretService.TokenFolderPath+"/"+config.SecretService.VaultInitParm, initRequestResponseBody, 0644)
+	err = ioutil.WriteFile(config.SecretService.TokenFolderPath+"/"+config.SecretService.VaultInitParm, initRequestResponseBody, 0600)
 	if err != nil {
 		lc.Error(fmt.Sprintf("Fatal error creating Vault init response %s file, HTTP status: %s", config.SecretService.TokenFolderPath+"/"+config.SecretService.VaultInitParm, err.Error()))
 		return 0, err

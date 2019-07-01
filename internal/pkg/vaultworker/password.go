@@ -24,8 +24,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/dghubble/sling"
-	"github.com/sethvargo/go-password/password"
+	"github.com/dghubble/sling"	
 )
 
 type UserPasswd struct {
@@ -34,11 +33,8 @@ type UserPasswd struct {
 }
 
 func CreateCredential() (string, error) {
-	pass, err := password.Generate(8, 4, 4, false, false)
-	if err != nil {
-		return "", err
-	}
-	return pass, nil
+	lc.Warn("todo: need to implment password generation mechanism.")
+	return "not-trusted-password-method", nil
 }
 
 func CredentialInStore(config *tomlConfig, secretBaseURL string, credPath string, c *http.Client) (bool, error) {
