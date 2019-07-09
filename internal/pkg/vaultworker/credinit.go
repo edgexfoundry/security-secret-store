@@ -27,32 +27,51 @@ type CredInfo struct {
 	Pair *UserPasswd
 }
 
-/* Need to creat credentials for all microservices and put them into the path of secret service
- */
-
+/* CredentialsInit() will creat credentials for all microservices and put them into the path of secret service */
 func CredentialsInit(config *tomlConfig, secretBaseURL string, c *http.Client) error {
 
 	creds := map[string]*CredInfo{}
 
-	adminpasswd, _ := CreateCredential()
+	adminpasswd, err := CreateCredential()
+	if err != nil {
+		return err
+	}
 	creds["mongo"] = &CredInfo{Path: config.SecretService.MongoSecretPath, Pair: &UserPasswd{User: "admin", Passwd: adminpasswd}}
 
-	corepasswd, _ := CreateCredential()
+	corepasswd, err := CreateCredential()
+	if err != nil {
+		return err
+	}
 	creds["coredata"] = &CredInfo{Path: config.SecretService.CoredataSecretPath, Pair: &UserPasswd{User: "core", Passwd: corepasswd}}
 
-	metapasswd, _ := CreateCredential()
+	metapasswd, err := CreateCredential()
+	if err != nil {
+		return err
+	}
 	creds["metadata"] = &CredInfo{Path: config.SecretService.MetadataSecretPath, Pair: &UserPasswd{User: "meta", Passwd: metapasswd}}
 
-	repasswd, _ := CreateCredential()
+	repasswd, err := CreateCredential()
+	if err != nil {
+		return err
+	}
 	creds["rulesengine"] = &CredInfo{Path: config.SecretService.RulesenginesecretPath, Pair: &UserPasswd{User: "rules_engine_user", Passwd: repasswd}}
 
-	ntpasswd, _ := CreateCredential()
+	ntpasswd, err := CreateCredential()
+	if err != nil {
+		return err
+	}
 	creds["notifications"] = &CredInfo{Path: config.SecretService.NotificationsSecretPath, Pair: &UserPasswd{User: "notifications", Passwd: ntpasswd}}
 
-	scpasswd, _ := CreateCredential()
+	scpasswd, err := CreateCredential()
+	if err != nil {
+		return err
+	}
 	creds["scheduler"] = &CredInfo{Path: config.SecretService.SchedulerSecretPath, Pair: &UserPasswd{User: "scheduler", Passwd: scpasswd}}
 
-	lgpasswd, _ := CreateCredential()
+	lgpasswd, err := CreateCredential()
+	if err != nil {
+		return err
+	}
 	creds["logging"] = &CredInfo{Path: config.SecretService.LoggingSecretPath, Pair: &UserPasswd{User: "logging", Passwd: lgpasswd}}
 
 	for _, v := range creds {
