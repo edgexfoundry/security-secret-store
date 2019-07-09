@@ -248,11 +248,12 @@ func main() {
 
 	secretServiceBaseURL := fmt.Sprintf("https://%s:%s/", config.SecretService.Server, config.SecretService.Port)
 
-	err = worker.CredentialsInit(config, secretServiceBaseURL, client)
-	if err != nil {
-		lc.Error(fmt.Sprintf("Failed to create initlization parameters in the secret store: %s", err.Error()))
-		os.Exit(1)
-	}
+	//TODO: need to implment credential creation
+	//err = worker.CredentialsInit(config, secretServiceBaseURL, client)
+	//if err != nil {
+	//	lc.Error(fmt.Sprintf("Failed to create initlization parameters in the secret store: %s", err.Error()))
+	//	os.Exit(1)
+	//}
 
 	hasCertKeyPair, err := worker.CertKeyPairInStore(config, secretServiceBaseURL, client, debug)
 	if err != nil {
