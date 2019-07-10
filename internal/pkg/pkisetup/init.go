@@ -126,8 +126,6 @@ func CreateEnv(x509config *X509Config) (CertConfig, error) {
 
 	// Print the JSON parameters to console
 	if cf.dumpConfig {
-		// inside createEnv, local x509config is already an address
-		// as it was passed to createEnv w/ the & prefix
 		_ = dumpJSONConfig(x509config)
 	}
 
