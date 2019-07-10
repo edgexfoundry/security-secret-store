@@ -14,16 +14,16 @@ GIT_SHA=$(shell git rev-parse HEAD)
 prepare:
 	
 clean:
-	cd core && rm -f $(VAULTWORKER)
-	cd pkisetup && rm -f $(PKISETUP)
+	cd cmd/vaultworker && rm -f $(VAULTWORKER)
+	cd cmd/pkisetup && rm -f $(PKISETUP)
 
 build: build_pki build_worker
 
 build_pki:
-	cd pkisetup && $(GO) build -a -ldflags="-s -w" -o $(PKISETUP) .
+	cd cmd/pkisetup && $(GO) build -a -ldflags="-s -w" -o $(PKISETUP) .
 
 build_worker:
-	cd core && $(GO) build -a -o $(VAULTWORKER) .
+	cd cmd/vaultworker && $(GO) build -a -o $(VAULTWORKER) .
 
 docker: $(DOCKERS)
 

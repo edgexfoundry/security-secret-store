@@ -24,11 +24,11 @@ RUN mkdir -p /edgex/res
 
 WORKDIR /edgex
 
-COPY core/res/configuration-docker.toml res/configuration.toml
-COPY core/res/vault-policy-admin.hcl res/
-COPY core/res/vault-policy-kong.hcl res/
+COPY cmd/vaultworker/res/configuration-docker.toml res/configuration.toml
+COPY cmd/vaultworker/res/vault-policy-admin.hcl res/
+COPY cmd/vaultworker/res/vault-policy-kong.hcl res/
 
-ADD core/edgex-vault-worker .
+ADD cmd/vaultworker/edgex-vault-worker .
 
 ENTRYPOINT ["./edgex-vault-worker"]
 

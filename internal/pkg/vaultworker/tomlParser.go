@@ -14,7 +14,7 @@
  * @author: Tingyu Zeng, Dell
  * @version: 1.0.0
  *******************************************************************************/
-package main
+package vaultworker
 
 import (
 	"github.com/BurntSushi/toml"
@@ -26,24 +26,24 @@ type tomlConfig struct {
 }
 
 type secretservice struct {
-	Scheme               string
-	Server               string
-	Port                 string
-	CAFilePath           string
-	CertPath             string
-	CertFilePath         string
-	KeyFilePath          string
-	VaultInitParm        string
-	VaultSecretShares    int
-	VaultSecretThreshold int
-	TokenFolderPath      string
-	PolicyPath4Admin     string
-	PolicyName4Admin     string
-	TokenName4Admin      string
-	PolicyPath4Kong      string
-	PolicyName4Kong      string
-	TokenName4Kong       string
-	SNIS                 string
+	Scheme                  string
+	Server                  string
+	Port                    string
+	CAFilePath              string
+	CertPath                string
+	CertFilePath            string
+	KeyFilePath             string
+	VaultInitParm           string
+	VaultSecretShares       int
+	VaultSecretThreshold    int
+	TokenFolderPath         string
+	PolicyPath4Admin        string
+	PolicyName4Admin        string
+	TokenName4Admin         string
+	PolicyPath4Kong         string
+	PolicyName4Kong         string
+	TokenName4Kong          string
+	SNIS                    string
 }
 
 // LoadTomlConfig Loading the TOML configuration into structure

@@ -17,7 +17,7 @@
   @version: 1.0.0
 */
 
-package main
+package vaultworker
 
 import (
 	"bufio"
@@ -119,8 +119,7 @@ type TokenID struct {
 	RequestID string `json:"request_id"`
 }
 
-// ----------------------------------------------------------
-func getPolicyFromFile(policyFilePtr *string) ([]byte, error) {
+func GetPolicyFromFile(policyFilePtr *string) ([]byte, error) {
 
 	var (
 		readLine      string
@@ -158,8 +157,7 @@ func getPolicyFromFile(policyFilePtr *string) ([]byte, error) {
 	return policyRequest, nil
 }
 
-// ----------------------------------------------------------
-func importPolicy(policyName string, policyRequest *[]byte, rootToken string, config *tomlConfig, httpClient *http.Client) (err error) {
+func ImportPolicy(policyName string, policyRequest *[]byte, rootToken string, config *tomlConfig, httpClient *http.Client) (err error) {
 
 	// Build Vault API full URL
 	url, err := url.Parse(config.SecretService.Scheme + "://" + config.SecretService.Server + ":" + config.SecretService.Port + vaultPolicyAPI + policyName)
@@ -177,7 +175,7 @@ func importPolicy(policyName string, policyRequest *[]byte, rootToken string, co
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode == 204 {
+	if resp.StatusCode == http.StatusNoContent {
 		lc.Info("Import Policy Successful.")
 	} else {
 		lc.Error(fmt.Sprintf("Import Policy HTTP Status: %s (StatusCode: %s)", resp.Status, strconv.Itoa(resp.StatusCode)))
@@ -187,8 +185,7 @@ func importPolicy(policyName string, policyRequest *[]byte, rootToken string, co
 	return nil
 }
 
-// ----------------------------------------------------------
-func createToken(tokenName string, policyName string, rootToken string, config *tomlConfig, httpClient *http.Client) (err error) {
+func CreateToken(tokenName string, policyName string, rootToken string, config *tomlConfig, httpClient *http.Client) (err error) {
 
 	// Prepare the JSON to be POST'ed
 	userData := Metadata{tokenName + " user"}
@@ -203,7 +200,7 @@ func createToken(tokenName string, policyName string, rootToken string, config *
 
 	tokenDataReq, err := json.Marshal(tokenData)
 	if err != nil {
-		fatalIfErr(err, "Token data request creation failure")
+		FatalIfErr(err, "Token data request creation failure")
 	}
 
 	// Build Vault API full URL
@@ -225,10 +222,10 @@ func createToken(tokenName string, policyName string, rootToken string, config *
 	// Get response body
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		fatalIfErr(err, "Read Body failure")
+		FatalIfErr(err, "Read Body failure")
 	}
 
-	if resp.StatusCode == 200 {
+	if resp.StatusCode == http.StatusOK {
 		lc.Info("Create Token Successful.")
 	} else {
 		lc.Error(fmt.Sprintf("Fatal Error Creating Token in Vault, HTTP Status: %s", resp.Status))
@@ -245,8 +242,7 @@ func createToken(tokenName string, policyName string, rootToken string, config *
 	return nil
 }
 
-// ----------------------------------------------------------
-func vaultPolicyCheck(policyName string, tokenID string, config *tomlConfig, httpClient *http.Client) (sCode int, err error) {
+func VaultPolicyCheck(policyName string, tokenID string, config *tomlConfig, httpClient *http.Client) (sCode int, err error) {
 
 	// Build Vault API full URL
 	url, err := url.Parse(config.SecretService.Scheme + "://" + config.SecretService.Server + ":" + config.SecretService.Port + vaultPolicyAPI + policyName)
@@ -270,8 +266,7 @@ func vaultPolicyCheck(policyName string, tokenID string, config *tomlConfig, htt
 	return resp.StatusCode, nil
 }
 
-// ----------------------------------------------------------
-func hashFile(policyFilePtr *string, debug bool) (hashSum []byte, err error) {
+func HashFile(policyFilePtr *string, debug bool) (hashSum []byte, err error) {
 
 	inputFile, err := os.Open(*policyFilePtr)
 	if err != nil {
@@ -294,9 +289,9 @@ func hashFile(policyFilePtr *string, debug bool) (hashSum []byte, err error) {
 	return hashSum, err
 }
 
-// ----------------------------------------------------------
-func fatalIfErr(err error, msg string) {
+/*FatalIfErr =  Prinf() followed by a call to os.Exit(1)*/
+func FatalIfErr(err error, msg string) {
 	if err != nil {
-		log.Fatalf("ERROR: %s: %s", msg, err) // fatalf() =  Prinf() followed by a call to os.Exit(1)
+		log.Fatalf("ERROR: %s: %s", msg, err)
 	}
 }

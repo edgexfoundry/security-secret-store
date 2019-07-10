@@ -14,7 +14,7 @@
  * @author: Tingyu Zeng, Dell / Alain Pulluelo, ForgeRock AS
  * @version: 1.0.0
  *******************************************************************************/
-package main
+package vaultworker
 
 import (
 	"bytes"
@@ -55,8 +55,7 @@ type UnsealResponse struct {
 	Progress int  `json:"progress"`
 }
 
-// ----------------------------------------------------------
-func vaultHealthCheck(config *tomlConfig, httpClient *http.Client) (sCode int, err error) {
+func VaultHealthCheck(config *tomlConfig, httpClient *http.Client) (sCode int, err error) {
 
 	// Build Vault API full URL
 	url, err := url.Parse(config.SecretService.Scheme + "://" + config.SecretService.Server + ":" + config.SecretService.Port + vaultHealthAPI)
@@ -80,8 +79,7 @@ func vaultHealthCheck(config *tomlConfig, httpClient *http.Client) (sCode int, e
 	return resp.StatusCode, nil
 }
 
-// ----------------------------------------------------------
-func vaultInit(config *tomlConfig, httpClient *http.Client, debug bool) (sCode int, err error) {
+func VaultInit(config *tomlConfig, httpClient *http.Client, debug bool) (sCode int, err error) {
 
 	// Shamir Secret Sharing parameters to apply during Vault initialization
 	initRequest := InitRequest{
@@ -113,7 +111,7 @@ func vaultInit(config *tomlConfig, httpClient *http.Client, debug bool) (sCode i
 	defer resp.Body.Close()
 
 	// Init request OK/KO ?
-	if resp.StatusCode != 200 {
+	if resp.StatusCode != http.StatusOK {
 		lc.Error(fmt.Sprintf("Vault init request failed with status code: %s", resp.Status))
 		return resp.StatusCode, err
 	}
@@ -148,8 +146,7 @@ func vaultInit(config *tomlConfig, httpClient *http.Client, debug bool) (sCode i
 	return resp.StatusCode, nil
 }
 
-// ----------------------------------------------------------
-func vaultUnseal(config *tomlConfig, httpClient *http.Client, debug bool) (sCode int, err error) {
+func VaultUnseal(config *tomlConfig, httpClient *http.Client, debug bool) (sCode int, err error) {
 
 	lc.Info(fmt.Sprintf("Vault Unsealing Process. Applying key shares."))
 
@@ -203,7 +200,7 @@ func vaultUnseal(config *tomlConfig, httpClient *http.Client, debug bool) (sCode
 		defer resp.Body.Close()
 
 		// Unseal request OK/KO ?
-		if resp.StatusCode != 200 {
+		if resp.StatusCode != http.StatusOK {
 			lc.Error(fmt.Sprintf("Vault unseal request failed with status code: %s", resp.Status))
 			return resp.StatusCode, err
 		}
@@ -245,13 +242,13 @@ func vaultUnseal(config *tomlConfig, httpClient *http.Client, debug bool) (sCode
             --data @${_PAYLOAD_KONG} \
             http://localhost:8200/v1/secret/edgex/pki/tls/edgex-kong
 */
-func uploadProxyCerts(config *tomlConfig, secretBaseURL string, cert string, sk string, c *http.Client) (bool, error) {
+func UploadProxyCerts(config *tomlConfig, secretBaseURL string, cert string, sk string, c *http.Client) (bool, error) {
 	body := &CertKeyPair{
 		Cert: cert,
 		Key:  sk,
 	}
 
-	t, err := getSecret(config.SecretService.TokenFolderPath + "/" + config.SecretService.VaultInitParm)
+	t, err := GetSecret(config.SecretService.TokenFolderPath + "/" + config.SecretService.VaultInitParm)
 	if err != nil {
 		lc.Error(err.Error())
 		return false, err
@@ -267,7 +264,7 @@ func uploadProxyCerts(config *tomlConfig, secretBaseURL string, cert string, sk 
 
 	defer resp.Body.Close()
 
-	if resp.StatusCode == 200 || resp.StatusCode == 204 {
+	if resp.StatusCode == http.StatusOK || resp.StatusCode == http.StatusCreated || resp.StatusCode == http.StatusNoContent {
 		lc.Info("API Gateway TLS certificate and key successfully loaded in the secret store.")
 	} else {
 		b, _ := ioutil.ReadAll(resp.Body)

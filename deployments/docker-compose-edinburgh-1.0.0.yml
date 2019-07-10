@@ -115,7 +115,7 @@ services:
 
 # containers for reverse proxy 
   kong-db:
-    image: "postgres:9.5"
+    image: "postgres:9.6"
     container_name: kong-db
     hostname: kong-db
     networks:
@@ -127,7 +127,7 @@ services:
         - 'POSTGRES_USER=kong'
 
   kong-migrations:
-    image: "kong:0.13.0"
+    image: "kong:1.0.3"
     container_name: kong-migration
     hostname: kong-migration
     networks:
@@ -135,10 +135,10 @@ services:
     environment:
         - 'KONG_DATABASE=postgres'
         - 'KONG_PG_HOST=kong-db'
-    command: "kong migrations up"
+    command: "kong migrations bootstrap"
 
   kong:
-    image: "kong:0.13.0"
+    image: "kong:1.0.3"
     container_name: kong
     hostname: kong
     networks:
@@ -160,7 +160,7 @@ services:
         - kong-db
 
   edgex-proxy:
-    image: "edgexfoundry/docker-edgex-proxy-go:0.2.0"
+    image: "edgexfoundry/docker-edgex-proxy-go:1.0.0"
     container_name: edgex-proxy
     hostname: edgex-proxy
     networks:
@@ -175,18 +175,23 @@ services:
 # end of containers for reverse proxy     
       
   mongo:
-    image: edgexfoundry/docker-edgex-mongo:0.6.0
+    image: edgexfoundry/docker-edgex-mongo:0.7.0
+    #image: my-mongo:latest
     ports:
       - "27017:27017"
     container_name: edgex-mongo
     hostname: edgex-mongo
     networks:
       - edgex-network
+    environment:
+      - 'SECRET_SERVICE_HOST=edgex-vault'
+      - 'MONGO_INITDB_DATABASE=admin'
     volumes:
       - db-data:/data/db
       - log-data:/edgex/logs
       - consul-config:/consul/config
       - consul-data:/consul/data
+      - vault-config:/vault/config
     depends_on:
       - volume
 

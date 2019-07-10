@@ -14,25 +14,28 @@
  * @author: Tingyu Zeng, Dell
  * @version: 1.0.0
  *******************************************************************************/
-
-package main
+package vaultworker
 
 import (
-	"encoding/json"
-	"io/ioutil"
+	"fmt"
+	"os"
 )
 
-// Secret Root Token
-type Secret struct {
-	Token string `json:"root_token"`
-}
+var usageStr = `
+Usage: %s [options]
+Server Options:
+	--consul=true/false				Indicates if retrieving config from Consul
+	--insureskipverify=true/false			Indicates if skipping the server side SSL cert verifcation, similar to -k of curl
+	--init=true/false				Indicates if security service should be initialized	
+	--configfile=<file.toml>			Use a different config file (default: res/configuration.toml)
+	--wait=<time in seconds>		Indicates how long the program will pause between the vault initialization until it succeeds
+	--debug=true/false				Output sensitive debug informations for security service
+	Common Options:
+	-h, --help					Show this message
+`
 
-func getSecret(filename string) (Secret, error) {
-	s := Secret{}
-	raw, err := ioutil.ReadFile(filename)
-	if err != nil {
-		return s, err
-	}
-	err = json.Unmarshal(raw, &s)
-	return s, err
+func HelpCallback() {
+	msg := fmt.Sprintf(usageStr, os.Args[0])
+	fmt.Printf("%s\n", msg)
+	os.Exit(0)
 }

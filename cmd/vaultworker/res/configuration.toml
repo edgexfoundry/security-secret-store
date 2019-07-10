@@ -11,22 +11,22 @@
 # or implied. See the License for the specific language governing permissions and limitations under
 # the License.
 #
-# @author: Tingyu Zeng, Dell / Alain Pulluelo, ForgeRock AS
+# @author: Tingyu Zeng, Dell
 # @version: 1.0.0
 #################################################################################
 
-# This is a TOML config file for EdgeX secret-security-store service.
+# This is a TOML config file for edgexsecurity service.
 
-title = "EdgeX security store service config file"
+title = "EdgeX security service config file"
 
 [secretservice]
 scheme = "https"
-server = "edgex-vault"
+server = "127.0.0.1"
 port = "8200"
 certpath = "v1/secret/edgex/pki/tls/edgex-kong"
 cafilepath = "/vault/config/pki/EdgeXFoundryCA/EdgeXFoundryCA.pem"
-certfilepath = "/vault/config/pki/EdgeXFoundryCA/edgex-kong.pem"
-keyfilepath = "/vault/config/pki/EdgeXFoundryCA/edgex-kong.priv.key"
+certfilepath = "/vault/config/pki/EdgeXFoundryCA/edgex-vault.pem"
+keyfilepath = "/vault/config/pki/EdgeXFoundryCA/edgex-vault.priv.key"
 vaultinitparm = "resp-init.json"
 vaultsecretshares = 5
 vaultsecretthreshold = 3
@@ -37,4 +37,4 @@ tokenname4admin = "admin"
 policypath4kong = "res/vault-policy-kong.hcl"
 policyname4kong = "kong"
 tokenname4kong = "kong"
-snis = "edgex.com"
+snis = "www.edgexfoundry.org"

@@ -1,6 +1,3 @@
-//+build !go1.10
-// Add a canary file to suggest Go 1.10 is required 
-
 /*
    Copyright 2018 ForgeRock AS.
 
@@ -16,13 +13,18 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 
-  @author: Alain Pulluelo, ForgeRock (created: August 8, 2018)
+  @author: Alain Pulluelo, ForgeRock (created: July 27, 2018)
+  @author: Tingyu Zeng, DELL (updated: May 21, 2019)
   @version: 1.0.0
 */
 
-package main
+package pkisetup
 
-// This file is here to give a better hint in the error message
-// when this project is built with a too old version of Go.
+import "log"
 
-var _ = ThisProjectRequiresGo1·10OrHigher
+/*FatalIfErr =  Printf() followed by a call to os.Exit(1)*/
+func FatalIfErr(err error, msg string) {
+	if err != nil {
+		log.Fatalf("ERROR: %s: %s", msg, err)
+	}
+}
